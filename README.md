@@ -1,5 +1,7 @@
 # WebSpeechAnalyzer
-Web demo at: [tabahi.github.io/WebSpeechAnalyzer/](https://tabahi.github.io/WebSpeechAnalyzer/)
+Try phoneme analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/](https://tabahi.github.io/WebSpeechAnalyzer/)
+
+Mel spectrum demo at: [tabahi.github.io/WebSpeechAnalyzer/?mode=2](https://tabahi.github.io/WebSpeechAnalyzer/?mode=2&p=Haendel_Lascia_chi_o_pianga.mp4 )
 
 
 A JS [Web API](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) based spectrum analyzer for speech and music analysis. It can be used for labeling or feature extraction. There is also an option for training a neural network with ml5js.
