@@ -727,13 +727,14 @@ function setup()
     {
         //set process level
         let new_mode = url_params.get("mode");
-        if((new_mode>0) && (new_mode<=5)) settings.process_level = new_mode;
+        if((new_mode>0) && (new_mode<=7)) settings.process_level = new_mode;
         dom_settings();
     }
     if(url_params.has("p"))
     {
         let ext_address = url_params.get("p");
         console.log("Playing external URL: " + (ext_address));
+        if(confirm("Play demo audio?"))
         play_web_audio(ext_address);
     }
     
