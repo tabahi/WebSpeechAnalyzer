@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/css/w3.css">
+    <link rel="stylesheet" href="assets/css/w3-theme-black.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <style>
+        * {
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .topnav {
+        overflow: hidden;
+        background-color: #333;
+        }
+
+        .topnav a {
+        float: left;
+        display: block;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        }
+
+        .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+        }
+        
+        .footer {
+        background-color: #000000;
+        padding: 10px;
+        text-align: center;
+        padding: 14px 16px;
+        font-size: 10px;
+        color: rgb(167, 167, 167);
+        }
+
+        .center-content {
+            max-width: 900px;
+            margin: auto;
+        }
+
+                
+        .slider {
+        -webkit-appearance: none;
+        width: 28px;
+        height: 10px;
+        background: #0a1d3f;
+        outline: none;
+        }
+
+        .slider:hover {
+        width: 70px;
+        height: 16px;
+        }
+
+        .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 4px;
+        height: 16px;
+        background: #ffffff;
+        cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+        width: 4px;
+        height: 16px;
+        background: #ffffff;
+        cursor: pointer;
+        }
+
+        .hide {
+        display: none;
+        }
+
+        .hideDiv:hover + .hide {
+        display: inline-table;
+        color:white;
+        }
+
+        canvas {
+            
+            border: 1px inset rgb(46, 46, 46);
+            -webkit-transition: all 1s;
+            }
+        
+    </style>
+    
+    <title>Speech Analyzer</title>
+
+    
+  </head>
+
+<body class="w3-black">
+    
+    
+    <div class="topnav">
+        <a href="https://github.com/tabahi/Mel-Spectrum-Analyzer">Info</a>
+    </div>
+
+    <div class="w3-container w3-center">
+        <h3>Speech Analyzer</h3>
+    </div>
+
+
+    <div class="w3-container w3-bottombar w3-border-dark-gray"> <!-- Main body container -->
+
+        <div class="w3-row w3-center w3-animate-zoom" id="canvas_div" style="display: none;">
+            <canvas id="SpectrumCanvas" width="1200" height="400" ></canvas>
+        </div>
+
+       
+
+        <div class="w3-row w3-center">
+            <p id="msg">Press Demo</p>
+            
+        </div>
+
+        
+
+
+        <!-- Settings Modal -->
+        <div id="settings_model" class="w3-modal w3-animate-opacity">
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+                <header class="w3-container w3-theme-d1"> 
+                 <span onclick="document.getElementById('settings_model').style.display='none'" 
+                 class="w3-button w3-red w3-xlarge w3-display-topright">&times;</span>
+                 <h2>Settings</h2>
+                </header>
+              
+              
+                <div class="w3-container w3-theme-d2 w3-small"> <!-- Spectrum settings-->
+
+                    <div class="w3-row w3-padding-16">
+
+                        <h5>Mode</h5>
+                        <div class="w3-col m2">
+                            <input class="w3-check" id="offline" title="Process files in the background without playing it out loud on the speakers. Better for quick processing." type="checkbox">
+                            <label for="offline" >Silent play</label>
+                        </div>
+                        <div class="w3-col m2">
+                            <input class="w3-check" id="plot_enable" title="Enable or disable real-time plotting. Uncheck for quick processing of larger files." type="checkbox">
+                            <label for="plot_enable" >Enable plot</label>
+                        </div>
+
+                        
+
+                        <div class="w3-col m2">
+                            <label>Input</label>
+                            <select class="w3-select w3-dark-input" id="spec_type" style="width:90%">
+                                <option value="1" selected>Mel-bands</option>
+                                <option value="2">Power</option>
+                                <option value="3">DFFT</option>
+                            </select> 
+                            </div>
+                        <div class="w3-col m2">
+                            <label>Output level</label>
+                            <select class="w3-select w3-dark-input" id="process_level" style="width:90%">
+                                <option value="1">Bars</option>
+                                <option value="2">Spectrum</option>
+                                <option value="3">Segments</option>
+                                <option value="4" selected>Segment Formants</option>
+                                <option value="5">Segment Features</option>
+                                <option value="6">Phoneme Formants</option>
+                                <option value="7">Phoneme Features</option>
+                            </select> 
+                        </div>
+
+                    </div>
+
+                    
+
+                    
+                    
+                    
+                </div>
+
+                <div class="w3-container w3-theme-d3 w3-small"> <!-- Speech segmentation settings-->
+
+                
+                    <div class="w3-row w3-padding-16">
+                        
+                        <h5>Segmentation</h5>
+                        <div class="w3-col m2">
+                            <label>Pause Length (ms)</label>
+                            <input class="w3-input w3-dark-input" type="number" id="pause_length" placeholder="250" style="width:90%" title="Duration of pause (in milliseconds) at which the current speech segment is truncated and a new segment is started.">
+                        </div>
+
+                        <div class="w3-col m2">
+                            <label>Min Length (ms)</label>
+                            <input class="w3-input w3-dark-input" type="number" id="min_seg_length" placeholder="250" style="width:90%" title="Minimum duration of a speech segment (in milliseconds). Shorter than this speech segments will be ignored. Set a smaller value for fast languages e.g., espanol">
+                        </div>
+                        
+                    </div>
+                </div>
+
+
+                <div class="w3-container w3-theme-d4 w3-small">  <!-- Plot settings-->
+                    
+                    <div class="w3-row w3-padding-16">
+                        <h5>Plotting</h5>
+                        <div class="w3-col m2">
+                            <label>Plot Latency</label>
+                            <input class="w3-input w3-dark-input" type="number" id="plot_lag" placeholder="5" style="width:90%" title="Set a lag in plot to avoid jitters caused by the plotting process. High latency in the rendering of plot decreases the jitter in audio playback. This only applies to the real-time plotting of Spectrum-Type or Bar-Type plotting. Segments and formants are plotted whenever there is a pause.">
+                        </div>
+
+                        <div class="w3-col m2">
+                        <label>Length</label>
+                            <input class="w3-input w3-dark-input" type="number" id="plot_len" placeholder="300" style="width:90%" title="Number of frames to plot on the spectrum canvas. In seconds, the total canvas size is Window Step size (ms) * 1000 * this Length.">
+                        </div>
+                    </div>
+                </div>
+
+
+              
+                <div class="w3-container w3-theme-d1 w3-small"> <!-- Sampling settings-->
+                    
+                    <div class="w3-row w3-padding-16">
+                        <h5>Sampling</h5>
+                        <div class="w3-col m2">
+                            <label>F min (Hz)</label>
+                            <input class="w3-input w3-dark-input" type="number" id="f_min" placeholder="50" style="width:90%" title="Minimum frequency of Mel filter.">
+                        </div>
+                        <div class="w3-col m2">
+                            <label>F max (Hz)</label>
+                            <input class="w3-input w3-dark-input" type="number" id="f_max" placeholder="4000" style="width:90%" title="Maximum frequency of FFT, power spectrum amd Mel-filters.">
+                        </div>
+                        <div class="w3-col m2">
+                            <label>Width (ms)</label>
+                            <input class="w3-input w3-dark-input" type="number" id="window_width" placeholder="40" style="width:90%" title="Window size in milliseconds for sampling.">
+                        </div>
+                        <div class="w3-col m2">
+                            <label>Step (ms)</label>
+                            <input class="w3-input w3-dark-input" type="number" id="window_step" placeholder="25" style="width:90%" title="Step size for sampling window in milliseconds. Keep it same as window width for 0% overlap, or half the size of window width to create 50% overlapping windows. Setting it higher than the window width will skip samples in between the steps.">
+                        </div>
+                    </div>
+
+                    <div class="w3-row w3-padding-16">
+                        
+                        <div class="w3-col m2">
+                        <label>FFT bins</label>
+                        <input class="w3-input w3-dark-input" type="number" id="N_fft_bins" placeholder="128" style="width:90%" title="Number of FFT bins within 0Hz to F_max range. This is not the FFT size, because FFT size depends on the sampling rate of the browser (usually 48kHz). This variable only sets the number of bins within the 0Hz-F_max frequency range. F_min is ignored for FFT bins.">
+                        </div>
+                        <div class="w3-col m2">
+                        <label>Mel filters</label>
+                        <input class="w3-input w3-dark-input" type="number" id="N_mel_bins" placeholder="64" style="width:90%" title="Number of Mel filters (bins). Keep it less or equal to FFT bins. F_min is the starting range for first Mel-filter, F_max is the end frequency of the last mel filter.">
+                        </div>
+                        
+                        <div class="w3-col m2">
+                        <label>Pre Gain</label>
+                            <input class="w3-input w3-dark-input" type="number" id="pre_norm_gain" placeholder="1000" style="width:90%" title="Preprocessing Gain multiplier for FFT bins to avoid loosing floating point precision and the color brightness of spectrum.">
+                        </div>
+                        <div class="w3-col m2">
+                            <label>High-freq-emphasis</label>
+                            <input class="w3-input w3-dark-input" type="number" step="0.01" id="high_f_emph" placeholder="0.1" style="width:90%" title="Pre-emphasis constant. High frequencies have low amplitude, this increases their amplitude to increase their significance on the spectrum. By this equation, higher the frequency, higher will be the emphasis factor: out_amp = real_amp  + (real_amp * f_mel_bin * high_f_emph)">
+                        </div>
+                    </div>
+                </div>
+              
+            
+                <div class="w3-container  w3-theme-d1 w3-padding">
+                    <button class="w3-button w3-right w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('settings_model').style.display='none'" >Close</button>
+                    <button class="w3-button w3-right w3-amber w3-border w3-round-large w3-margin-right"   onclick="FASER.update_settings()">Set</button>
+                </div>
+                
+            </div>
+          </div> 
+
+        
+
+        
+        
+        <div class="w3-row w3-center w3-padding-small">     <!-- Buttons -->
+
+            <input type="button" id="demo_button" value="Demo" class="w3-button w3-wide w3-border w3-border-amber w3-padding" disabled>
+            
+            <input type="button" id="mic_button" value="Mic" class="w3-button w3-wide w3-border w3-border-amber w3-padding" disabled>
+            
+            <button onclick="document.getElementById('settings_model').style.display='block'" class="w3-button w3-small w3-border w3-border-brown">Settings</button>
+
+            
+        </div>
+        
+        <div class="w3-row w3-center w3-padding-small"> <!-- File loading zone -->
+            <div id="dropZone" class="w3-card-4">
+                <p>
+                    <label for="filesx" class="w3-hover-text-amber">Load Audio: </label>
+                    <input type="file" id="filesx" name="filesx[]" onchange="FASER.readmultifiles(this.files)" multiple="" class="w3-button w3-hover-border-khaki w3-padding" placeholder="Audio files" accept="audio/*" />
+                    <input type="button" id="play_button" value="Play" class="w3-button w3-wide w3-border w3-border-light-blue w3-padding" disabled>
+                </p>
+            </div>
+        </div>
+        
+        <!--
+        <div class="w3-row w3-center w3-padding-16">
+            <canvas id="AnalysisCanvas" width="1450" height="400" ></canvas>
+        </div>
+        -->
+
+
+    </div>  <!-- Main body container ends -->
+
+    <div class="center-content w3-row w3-center w3-padding-32 w3-small">
+        
+    <input class="w3-check w3-margin-left" id="data_collect_en" onchange="FASER.data_collect_en(this.checked)" type="checkbox"> <label for="data_collect_en" >Data Collect</label>
+
+    <input class="w3-check w3-margin-left" id="ML_train_en" onchange="FASER.ML_train_en(this.checked)" type="checkbox" disabled> <label for="ML_train_en" >ML Training</label>
+    </div>
+
+    <div class="w3-container w3-border-bottom">  <!-- DB Table container -->
+
+
+        <div class="center-content w3-row w3-center w3-padding-32" id="table_btns_div">
+            
+            <h3 class="w3-opacity">Data Collection & Labeling</h3>
+
+            <button onclick="document.getElementById('db_settings_model').style.display='block'" class="w3-button w3-tiny w3-border w3-border-gray w3-margin-right">Data settings</button>
+
+            
+            
+            <button onclick="FASER.refresh_db_table()" class="w3-button w3-tiny w3-border w3-border-yellow w3-margin-left">Refresh</button>
+        </div>
+
+
+
+
+
+          <!-- DB settings Modal -->
+          <div id="db_settings_model" class="w3-modal w3-animate-opacity">
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+                <header class="w3-container w3-theme-d1"> 
+                 <span onclick="document.getElementById('db_settings_model').style.display='none'" 
+                 class="w3-button w3-red w3-xlarge w3-display-topright">&times;</span>
+                 <h2>Data Settings</h2>
+                </header>
+              
+              
+                <div class="w3-container w3-theme-d2"> <!-- DB settings buttons-->
+
+                    <div class="w3-row w3-padding-16">
+
+                        <label for="up_data_file" class="w3-margin-left w3-tiny"> Load Data:</label>
+            <input type="file" id="up_data_file" name="up_data_file" accept="application/JSON" class="w3-margin-right w3-button w3-tiny">
+
+                    </div>
+
+                    <div class="w3-row w3-padding-16">
+
+                        <div class="w3-col m2">
+                            <button onclick="FASER.clear_db_table()" class="w3-button w3-border w3-border-gray  w3-black">Clear all</button>
+                        </div>
+
+                        <div class="w3-col m2">
+                            <button onclick="FASER.clear_labels(false, true)" class="w3-button w3-border w3-border-gray w3-black">Clear Predictions</button>
+                        </div>
+
+                        <div class="w3-col m2">
+                            <button onclick="FASER.clear_labels(true, false)" class="w3-button w3-border w3-border-gray w3-black">Clear Labels</button>
+                        </div>
+
+                        
+
+                        <div class="w3-col m2">
+                        <button onclick="FASER.download_db_table()" class="w3-button w3-border w3-border-gray w3-green">Download Data</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+
+                <div class="w3-container w3-theme-d4 w3-small"> <!-- DB settings-->
+
+                    <div class="w3-row w3-padding-16">
+
+                        <h5>Labels</h5>
+
+                        <div class="w3-col m3">
+                            <input class="w3-check" id="use_custom_labels" title="Tip" type="checkbox" hidden>
+                        </div>
+
+                        <div class="w3-col m6">
+                            <label>Class Labels (Array of JSON objects)</label>
+                            <input class="w3-input w3-dark-input" type="text" id="class_labels" placeholder='[{ "emotion": ["A","H","N","S"] },  {"sex": ["M","F"] } ,  {"spkr": ["*"] } ]' value='[{ "label_A": ["A","H","N","S"] },  {"label_B": ["M","F"] } ,  {"spkr": ["*"] } ]' style="width:90%" title='For each label, only one class can be selected as 1, whiles others are set to 0. Format: Array of objects object [{"label" : ["Class A", "Class B"]}]'>
+                        </div>
+
+                        <div class="w3-col m6">
+                            <label>Ordinal Labels (Array of Strings)</label>
+                            <input class="w3-input w3-dark-input" type="text" id="ordinal_labels" placeholder='["X", "Y", "Z"]' value='["X"]' style="width:90%" title='Independent continuous scale variables between 0 and 1. Format: Array of Strings ["var1", "var2"]'>
+                        </div>
+                    </div>
+
+
+
+                    <div class="w3-row w3-padding-16">
+
+                        <h5>Parse labels</h5>
+                        <p>Upload a label file. Only the labels prototyped above will be parsed. Use JSON format, where "i" gives the filename followed by labels. Example:
+                        </p>
+                        <pre class="w3-text-amber">[{"i": "file001.wav", "sex": "F", "spkr": 1}, {"i": "file002.wav", "sex": "M", "spkr": 2}]</pre>
+                        <div class="w3-col m3">
+                            <label for="up_labels_file" class="w3-margin-left w3-tiny"> Load Labels:</label>
+            <input type="file" id="up_labels_file" name="up_labels_file" accept="application/JSON" class="w3-margin-right w3-button w3-tiny">
+                        </div>
+
+                        
+
+                    </div>
+                    
+                </div>
+
+                
+            
+                <div class="w3-container  w3-theme-d1 w3-padding">
+                    
+                    <button class="w3-button w3-right w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('db_settings_model').style.display='none'">Close</button>
+                    
+                    <button class="w3-button w3-right w3-amber w3-border w3-round-large w3-margin-left" onclick="FASER.refresh_db_table()">Set</button>
+                    
+                </div>
+                
+            </div>
+          </div> 
+
+
+
+
+
+
+
+
+        
+
+
+        <!-- DB table div -->
+        <div class="center-content w3-responsive" id="table_div">
+            <table class="center w3-table w3-bordered "> 
+                
+            </table>
+            
+        </div>
+
+        <div id="results_div" class="w3-container">
+            
+        </div>
+
+
+      
+        
+
+
+
+        <!-- ML training buttons div-->
+        <div class="center-content w3-row w3-center w3-padding-small"  id="ML_training_div">
+            <!-- 
+            <h3 class="w3-opacity">ML Training</h3>
+            <div class="w3-container w3-border w3-border-blue w3-cell  w3-cell-middle w3-padding-16">
+                <h5>YYY</h5>
+
+                <div class="w3-row w3-margin-top">
+                    <button onclick="FASER.start_nn_training()" class="w3-button w3-tiny w3-border w3-border-indigo">Train</button>
+                </div>
+                <div class="w3-row w3-margin-top">
+                    <button onclick="FASER.start_nn_prediction()" class="w3-button w3-tiny w3-border w3-border-indigo">Predict</button>
+                </div>
+                <div class="w3-row w3-margin-top">
+                    <button onclick="FASER.download_nn_model()" class="w3-button w3-tiny w3-border w3-border-deep-purple">Download</button>
+                </div>
+                <div class="w3-row w3-margin-top">
+                    <button onclick="console.log('Load '+ 1);" class="w3-button w3-tiny w3-border w3-border-deep-purple">Load</button>
+                </div>
+                
+            </div>
+             -->
+            
+        </div>
+        <div id="ML_training_div_modals"></div>
+
+
+          <!-- NN training edit Modal (example)-->
+        <!-- 
+        <div class="w3-row w3-center w3-padding-32">
+            <button onclick="document.getElementById('nn_edit_model').style.display='block'" class="w3-button w3-tiny w3-border w3-border-gray w3-margin-right">Edit</button>
+          <div id="nn_edit_model" class="w3-modal w3-animate-opacity">
+            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+                <header class="w3-container w3-theme-d1"> 
+                 <span onclick="document.getElementById('nn_edit_model').style.display='none'" 
+                 class="w3-button w3-red w3-xlarge w3-display-topright">&times;</span>
+                 <h2>Training</h2>
+                </header>
+                <div class="w3-container w3-theme-d2 w3-small">
+                    <div class="w3-row w3-padding-16">
+                        <textarea name="Text1" id="Textbox1" cols="10" rows="25" class="w3-input w3-dark-input" style="font-family: 'Courier New', Courier, monospace;"></textarea>
+                    </div>
+                </div>
+                <div class="w3-container  w3-theme-d1 w3-padding">
+                    <button class="w3-button w3-right w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('nn_edit_model').style.display='none'">Close</button>
+                    <button class="w3-button w3-right w3-teal w3-border w3-round-large w3-margin-right"
+                    onclick="console.log(JSON.parse (document.getElementById('Textbox1').value))">Start</button>
+                </div>
+                
+            </div>
+          </div>
+
+        </div>
+        -->
+
+
+        <!-- ML training status text-->
+        <pre id="nn_msg" class="w3-text-blue w3-wide"></pre>
+    
+    
+    </div>   <!-- DB Table container ends -->
+
+
+    <div class="footer">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <span>
+                <b>Tabahi - Abdul Rehman</b>
+            </span>
+            
+            <span>© 2021</span>
+          </a>
+    </div>
+    
+    <script src="../../app_assets/dist/ml5.min.js"></script>
+    <script src="../../app_assets/dist/main.js"></script>
+
+    
+    <script>
+
+    
+    </script>
+    
+    </body>
+</html>
