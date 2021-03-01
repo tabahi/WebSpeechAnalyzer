@@ -6,14 +6,13 @@ module.exports = {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'var',
-    library: 'FASER',
+    library: 'SA',
   },
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".tsx", ".js", ".json", ".wasm"]
   },
-  mode : 'development',
-  devtool: 'inline-source-map',
+  mode : 'production',
   node: {
     fs: "empty"
   }

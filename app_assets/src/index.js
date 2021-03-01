@@ -15,7 +15,7 @@ const BOX_WIDTH = 1200;
 const BOX_HEIGHT = 400;
 
 //var settings = { offline:true, plot_enable:true, spec_type: 1, process_level: 4, plot_len: 200, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 25, pause_length:500, min_seg_length:150, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.00, slow:true, DB_ID:1, collect:true};
-var settings = { offline:false, plot_enable:true, spec_type: 1, process_level: 6, plot_len: 200, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 25, pause_length:200, min_seg_length:50, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.00, slow:true, DB_ID:1, collect:true, ML_en: true};
+var settings = { offline:false, plot_enable:true, spec_type: 1, process_level: 5, plot_len: 300, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 25, pause_length:200, min_seg_length:50, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.00, slow:true, DB_ID:1, collect:false, ML_en: false};
 
 var status = { playing:false, files_processed:0, current_file_index:0, Source:1 };
 
@@ -734,8 +734,8 @@ function setup()
     {
         let ext_address = url_params.get("p");
         console.log("Playing external URL: " + (ext_address));
-        if(confirm("Play demo audio?"))
-        play_web_audio(ext_address);
+        play_url = ext_address;
+        //play_web_audio(ext_address);
     }
     
 }
@@ -751,137 +751,3 @@ function synth_test()
 
 window.onload = setup;
 
-
-/*
-
-function show_prediction_func(label_int, si)
-{
-    if(settings.ClassType==3)   //3 is the index of Emotion class in labels
-    {
-        let predicted_label = "X";
-        if(label_int==0)
-            predicted_label = "N";
-        else if(label_int==1)
-            predicted_label = "S";
-        else if(label_int==2)
-            predicted_label = "H";
-        else if(label_int==3)
-            predicted_label = "A";
-
-        console.log(predicted_label);
-        AudioNodes.set_predicted_label_for_segment(si, settings.ClassType, predicted_label);
-        //document.getElementById("emo_label").innerHTML = predicted_label;
-        //HTML: <span id="emo_label" style="color:chartreuse; font-size:large;">0</span>
-    }
-}
-
-
-function readTextFile(file, callback) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.overrideMimeType("application/json");
-    rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function() {
-        if (rawFile.readyState === 4 && rawFile.status == "200") {
-            callback(rawFile.responseText);
-        }
-    }
-    rawFile.send(null);
-}
-
-
-
-
-function arrayAverage(arr){
-    let sum = 0;
-    let len = arr.length;
-    for(let i in arr) {
-        sum += arr[i];
-    }
-    return (sum / len);
-  };
-
-function train_from_file()
-{
-    readTextFile("./learn/data.json", function(text){
-        Classifier.train_main(text);
-    });
-}
-
-
-
-//var phn = [];
-//var sum_phn_len = 0;
-//var seg_lens = [];
-//var sil_counts = [];
-//var sil_lens = [];
-
-function callback_after_features_extract_22Oct(si, seg_label=[], ph_filters, seg_len, sil_count, sil_len)
-{
-    
-    for(let p=0; p < ph_filters.length; p++)
-    {
-        if(ph_filters[p].length == NUM_FT)
-        {
-            phn.push(ph_filters[p]);
-            
-            sum_phn_len += ph_filters[p][NUM_FT - 1];
-
-            seg_lens.push(seg_len);
-            sil_counts.push(sil_count);
-            sil_lens.push(sil_len);
-            
-            if(sum_phn_len > 60)
-            {
-                //console.log(sum_phn_len);
-                let tphs = new Array(NUM_FT).fill(0);
-
-                for(let j=0; j < NUM_FT; j++)
-                {
-                    for(let h=0; h < phn.length; h++)
-                    {
-                        tphs[j] += phn[h][j];   
-                    }
-                    if(j < NUM_FT - 3)
-                        tphs[j] /= sum_phn_len; //don't avg for last 3 features
-                }
-                
-                //add segmental features to array
-                tphs[NUM_FT] = phn.length;
-                tphs[NUM_FT+1] = arrayAverage(seg_lens);
-                tphs[NUM_FT+2] = arrayAverage(sil_counts);
-                tphs[NUM_FT+3] = arrayAverage(sil_lens);
-                tphs[NUM_FT+4] = 0;
-                if(tphs[NUM_FT] > 0) tphs[NUM_FT+4] = tphs[NUM_FT+2]/tphs[NUM_FT]; //sil_counts per phone_counts
-                
-
-
-                //console.log(tphs);
-
-                
-                features_collect.push(tphs);
-                labels_collect.push(seg_label) //[file, speaker, sex, emo, v, a, d]
-
-
-                if(settings.Train_Test==1)
-                    Classifier.svm_predict(tphs, show_prediction_func, si);
-                
-                tphs = null;
-
-                if(sum_phn_len > 80)
-                {
-                    sum_phn_len = sum_phn_len - (ph_filters[0][NUM_FT - 1]);
-                    phn.splice(0, 1);
-                    seg_lens.splice(0, 1);
-                    sil_counts.splice(0, 1);
-                    sil_lens.splice(0, 1);
-                }
-            }
-        }
-        else
-        {
-            console.warn("ph_filters invalid len: " + String(ph_filters[p].length ))
-        }
-    }
-}
-
-*/

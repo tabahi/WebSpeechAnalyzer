@@ -13,7 +13,7 @@ Prerequisites: [Node.js](https://nodejs.org/en/download/), check versions >12 fo
 Install Webpack using `npm`
 ```cmd
 ::(project dir)
-cd Formants-Analyzer
+cd app_assets
 
 npm init -y
 npm install webpack webpack-cli --save-dev
@@ -28,7 +28,7 @@ npm run build
 :: Output: webpack 5.4.0 compiled successfully in 1000 ms
 
 ```
-This will compile the final JS to `./dist/main.js`. Load this file from any HTML webpage where `FormantAnalyzer` is the entry point set in `webpack.config.js`. Call library functions as `FormantAnalyzer.play_file_sample(url)`.
+This will compile the final JS to `./dist/main.js`. Load this file from any HTML webpage where `SA` is the entry point set in `webpack.config.js`. Call library functions as `SA.play_file_sample(url)`.
 
 ## Importing
 
@@ -38,8 +38,7 @@ const AudioLauncher = require('./src/FormantAnalyzer/AudioLauncher.js');
 
 /* Configure the Audio Launcher*/
 
-var settings = { offline:false,plot_enable:true, spec_type: 1, process_level: 2, plot_len: 200, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 25, pause_length:250, min_seg_length:250, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.0};
-
+var settings = { offline:false, plot_enable:true, spec_type: 1, process_level: 5, plot_len: 200, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 25, pause_length:200, min_seg_length:50, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.00, slow:true, DB_ID:1, collect:false, ML_en: false};
 
 
 AudioLauncher.configure(settings.spec_type, settings.process_level, settings.f_min, settings.f_max, settings.N_fft_bins, settings.N_mel_bins, settings.window_width, settings.window_step, settings.pre_norm_gain, settings.high_f_emph, settings.pause_length, settings.min_seg_length, settings.plot_enable, settings.plot_len, settings.plot_lag, CANVAS_CTX, BOX_WIDTH, BOX_HEIGHT);
@@ -65,3 +64,18 @@ webAudioElement.addEventListener("canplaythrough", event => {
             console.log(err);
         });
 });
+```
+
+## Data collection
+
+Data is collected in the browser's local storage. Chrome has a fixed limited storage of 512KB, firefox has the same but it can be increased if you need to collect and label huge amount of audio samples (>100). [See instructions here to increase the data storage capacity of your browser](https://arty.name/localstorage.html).
+
+To see more details about features, see `function formant_features(formants)` in file `./src/FormantAnalyzer/formants.js`.
+
+The `Segment Formants` and `Phoneme Formants` output modes return 18 features per time frame (~25ms). These 18 features include 3 features of 6 formants; mel-frequency (energy weighted), sum of power of formant across it's (vertical) bandwidth, and the bandwidth span of the formant. The colors at the peak amplitudes of formants in the the plot represent formants f0 to f6 as green, magenta, cyan, orange, purple, purple, purple...
+
+## ML Training
+
+Currently, only the "Segment Features" and "Phoneme Features" are the trainable modes because they output fixed number of features (40) per segment or phoneme. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
+
+In case, someone wants to use CNN layers with padding / masking etc to work with all other modes, then edit the source in `function train_nn(db_id, label_type, label_name)` in file `neuralmodel.js`.

@@ -272,7 +272,7 @@
             
                 <div class="w3-container  w3-theme-d1 w3-padding">
                     <button class="w3-button w3-right w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('settings_model').style.display='none'" >Close</button>
-                    <button class="w3-button w3-right w3-amber w3-border w3-round-large w3-margin-right"   onclick="FASER.update_settings()">Set</button>
+                    <button class="w3-button w3-right w3-amber w3-border w3-round-large w3-margin-right"   onclick="SA.update_settings()">Set</button>
                 </div>
                 
             </div>
@@ -297,7 +297,7 @@
             <div id="dropZone" class="w3-card-4">
                 <p>
                     <label for="filesx" class="w3-hover-text-amber">Load Audio: </label>
-                    <input type="file" id="filesx" name="filesx[]" onchange="FASER.readmultifiles(this.files)" multiple="" class="w3-button w3-hover-border-khaki w3-padding" placeholder="Audio files" accept="audio/*" />
+                    <input type="file" id="filesx" name="filesx[]" onchange="SA.readmultifiles(this.files)" multiple="" class="w3-button w3-hover-border-khaki w3-padding" placeholder="Audio files" accept="audio/*" />
                     <input type="button" id="play_button" value="Play" class="w3-button w3-wide w3-border w3-border-light-blue w3-padding" disabled>
                 </p>
             </div>
@@ -314,9 +314,9 @@
 
     <div class="center-content w3-row w3-center w3-padding-32 w3-small">
         
-    <input class="w3-check w3-margin-left" id="data_collect_en" onchange="FASER.data_collect_en(this.checked)" type="checkbox"> <label for="data_collect_en" >Data Collect</label>
+    <input class="w3-check w3-margin-left" id="data_collect_en" onchange="SA.data_collect_en(this.checked)" type="checkbox"> <label for="data_collect_en" >Data Collect</label>
 
-    <input class="w3-check w3-margin-left" id="ML_train_en" onchange="FASER.ML_train_en(this.checked)" type="checkbox" disabled> <label for="ML_train_en" >ML Training</label>
+    <input class="w3-check w3-margin-left" id="ML_train_en" onchange="SA.ML_train_en(this.checked)" type="checkbox" disabled> <label for="ML_train_en" >ML Training</label>
     </div>
 
     <div class="w3-container w3-border-bottom">  <!-- DB Table container -->
@@ -330,7 +330,7 @@
 
             
             
-            <button onclick="FASER.refresh_db_table()" class="w3-button w3-tiny w3-border w3-border-yellow w3-margin-left">Refresh</button>
+            <button onclick="SA.refresh_db_table()" class="w3-button w3-tiny w3-border w3-border-yellow w3-margin-left">Refresh</button>
         </div>
 
 
@@ -359,21 +359,21 @@
                     <div class="w3-row w3-padding-16">
 
                         <div class="w3-col m2">
-                            <button onclick="FASER.clear_db_table()" class="w3-button w3-border w3-border-gray  w3-black">Clear all</button>
+                            <button onclick="SA.clear_db_table()" class="w3-button w3-border w3-border-gray  w3-black">Clear all</button>
                         </div>
 
                         <div class="w3-col m2">
-                            <button onclick="FASER.clear_labels(false, true)" class="w3-button w3-border w3-border-gray w3-black">Clear Predictions</button>
+                            <button onclick="SA.clear_labels(false, true)" class="w3-button w3-border w3-border-gray w3-black">Clear Predictions</button>
                         </div>
 
                         <div class="w3-col m2">
-                            <button onclick="FASER.clear_labels(true, false)" class="w3-button w3-border w3-border-gray w3-black">Clear Labels</button>
+                            <button onclick="SA.clear_labels(true, false)" class="w3-button w3-border w3-border-gray w3-black">Clear Labels</button>
                         </div>
 
                         
 
                         <div class="w3-col m2">
-                        <button onclick="FASER.download_db_table()" class="w3-button w3-border w3-border-gray w3-green">Download Data</button>
+                        <button onclick="SA.download_db_table()" class="w3-button w3-border w3-border-gray w3-green">Download Data</button>
                         </div>
                         
                     </div>
@@ -426,7 +426,7 @@
                     
                     <button class="w3-button w3-right w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('db_settings_model').style.display='none'">Close</button>
                     
-                    <button class="w3-button w3-right w3-amber w3-border w3-round-large w3-margin-left" onclick="FASER.refresh_db_table()">Set</button>
+                    <button class="w3-button w3-right w3-amber w3-border w3-round-large w3-margin-left" onclick="SA.refresh_db_table()">Set</button>
                     
                 </div>
                 
@@ -469,13 +469,13 @@
                 <h5>YYY</h5>
 
                 <div class="w3-row w3-margin-top">
-                    <button onclick="FASER.start_nn_training()" class="w3-button w3-tiny w3-border w3-border-indigo">Train</button>
+                    <button onclick="SA.start_nn_training()" class="w3-button w3-tiny w3-border w3-border-indigo">Train</button>
                 </div>
                 <div class="w3-row w3-margin-top">
-                    <button onclick="FASER.start_nn_prediction()" class="w3-button w3-tiny w3-border w3-border-indigo">Predict</button>
+                    <button onclick="SA.start_nn_prediction()" class="w3-button w3-tiny w3-border w3-border-indigo">Predict</button>
                 </div>
                 <div class="w3-row w3-margin-top">
-                    <button onclick="FASER.download_nn_model()" class="w3-button w3-tiny w3-border w3-border-deep-purple">Download</button>
+                    <button onclick="SA.download_nn_model()" class="w3-button w3-tiny w3-border w3-border-deep-purple">Download</button>
                 </div>
                 <div class="w3-row w3-margin-top">
                     <button onclick="console.log('Load '+ 1);" class="w3-button w3-tiny w3-border w3-border-deep-purple">Load</button>

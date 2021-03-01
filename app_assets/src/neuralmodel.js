@@ -626,7 +626,7 @@ export function make_ML_div(enable_disable)
                         <button onclick="document.getElementById('nn_train_modal_${label_type}_${label_name}').style.display='block'" class="w3-button w3-tiny w3-border w3-border-indigo">Model</button>
                         </div>
                         <div class="w3-row w3-margin-top">
-                            <button onclick="FASER.start_nn_prediction('${label_type}', '${label_name}')" class="w3-button w3-tiny w3-border w3-border-indigo w3-margin-bottom"  id="pred_${label_type}_${label_name}" disabled>Predict</button>
+                            <button onclick="SA.start_nn_prediction('${label_type}', '${label_name}')" class="w3-button w3-tiny w3-border w3-border-indigo w3-margin-bottom"  id="pred_${label_type}_${label_name}" disabled>Predict</button>
                         </div>
                     </div>`;
             
@@ -646,11 +646,11 @@ export function make_ML_div(enable_disable)
                                 <p>Download the trained model or load a pre-trained model</p>
                                     
                                 <div class="w3-col m2">
-                                    <button onclick="FASER.download_nn_model('${label_type}','${label_name}')" class="w3-button w3-tiny w3-border w3-indigo">Download Model</button>
+                                    <button onclick="SA.download_nn_model('${label_type}','${label_name}')" class="w3-button w3-tiny w3-border w3-indigo">Download Model</button>
                                 </div>
 
                                 <div class="w3-col m2">
-                                <input type="file" id="nn_mod${label_type}_${label_name}" name="nn_${label_type}_${label_name}[]" onchange="FASER.load_files_nn_model(this.files, '${label_type}', '${label_name}')" multiple="" class="w3-button w3-hover-border-khaki w3-padding"/>
+                                <input type="file" id="nn_mod${label_type}_${label_name}" name="nn_${label_type}_${label_name}[]" onchange="SA.load_files_nn_model(this.files, '${label_type}', '${label_name}')" multiple="" class="w3-button w3-hover-border-khaki w3-padding"/>
 
                                 </div>
                             </div>
@@ -679,7 +679,7 @@ export function make_ML_div(enable_disable)
                         <button class="w3-button w3-left w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('nn_train_modal_${label_type}_${label_name}').style.display='none'">Close</button>
 
                             <button class="w3-button w3-left w3-teal w3-border w3-round-large w3-margin-right"
-                            onclick="FASER.start_nn_training('${label_type}', '${label_name}')">Start Training</button>
+                            onclick="SA.start_nn_training('${label_type}', '${label_name}')">Start Training</button>
 
                         </div>
                     </div>
@@ -700,7 +700,7 @@ export function make_ML_div(enable_disable)
                         <button onclick="document.getElementById('nn_train_modal_${label_type}_${label_name}').style.display='block'" class="w3-button w3-tiny w3-border w3-border-indigo">Model</button>
                         </div>
                         <div class="w3-row w3-margin-top">
-                            <button onclick="FASER.start_nn_prediction('${label_type}', '${label_name}')" class="w3-button w3-tiny w3-border w3-border-indigo w3-margin-bottom" id="pred_${label_type}_${label_name}" disabled>Predict</button>
+                            <button onclick="SA.start_nn_prediction('${label_type}', '${label_name}')" class="w3-button w3-tiny w3-border w3-border-indigo w3-margin-bottom" id="pred_${label_type}_${label_name}" disabled>Predict</button>
                         </div>
                     </div>`;
 
@@ -721,11 +721,11 @@ export function make_ML_div(enable_disable)
                                 <p>Download the trained model or load a pre-trained model</p>
                                     
                                 <div class="w3-col m2">
-                                    <button onclick="FASER.download_nn_model('${label_type}','${label_name}')" class="w3-button w3-tiny w3-border w3-indigo">Download Model</button>
+                                    <button onclick="SA.download_nn_model('${label_type}','${label_name}')" class="w3-button w3-tiny w3-border w3-indigo">Download Model</button>
                                 </div>
 
                                 <div class="w3-col m2">
-                                <input type="file" id="nn_mod${label_type}_${label_name}" name="nn_${label_type}_${label_name}[]" onchange="FASER.load_files_nn_model(this.files, '${label_type}', '${label_name}')" multiple="" class="w3-button w3-hover-border-khaki w3-padding"/>
+                                <input type="file" id="nn_mod${label_type}_${label_name}" name="nn_${label_type}_${label_name}[]" onchange="SA.load_files_nn_model(this.files, '${label_type}', '${label_name}')" multiple="" class="w3-button w3-hover-border-khaki w3-padding"/>
 
                                 </div>
                             </div>
@@ -752,7 +752,7 @@ export function make_ML_div(enable_disable)
                         <button class="w3-button w3-left w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('nn_train_modal_${label_type}_${label_name}').style.display='none'">Close</button>
 
                             <button class="w3-button w3-left w3-teal w3-border w3-round-large w3-margin-right"
-                            onclick="FASER.start_nn_training('${label_type}', '${label_name}')">Start Training</button>
+                            onclick="SA.start_nn_training('${label_type}', '${label_name}')">Start Training</button>
 
                         </div>
                     </div>

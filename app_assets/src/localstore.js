@@ -266,11 +266,11 @@ function add_table_row(tbi, seg_i, seg_key, filename, seg_n, N_f, t_start, t_dur
     cell.innerHTML = `${seg_i}`;   //index
 
     cell = row.insertCell(cell_i); cell_i++; //file name
-    cell.innerHTML = `<button onclick="FASER.play_file_sample('${filename}')" class='w3-button w3-tiny w3-border w3-round w3-padding-small'>${filename.substring(0, 15)}</button>`;
+    cell.innerHTML = `<button onclick="SA.play_file_sample('${filename}')" class='w3-button w3-tiny w3-border w3-round w3-padding-small'>${filename.substring(0, 15)}</button>`;
 
 
     cell = row.insertCell(cell_i); cell_i++;  //seg num
-    cell.innerHTML = `<button onclick="FASER.play_file_sample('${filename}',${t_start},${t_durat})" class='w3-button w3-tiny w3-border w3-round w3-padding-small'>${seg_n}</button>`; 
+    cell.innerHTML = `<button onclick="SA.play_file_sample('${filename}',${t_start},${t_durat})" class='w3-button w3-tiny w3-border w3-round w3-padding-small'>${seg_n}</button>`; 
 
     
     cell = row.insertCell(cell_i); cell_i++;  //number of features
@@ -311,7 +311,7 @@ function add_table_row(tbi, seg_i, seg_key, filename, seg_n, N_f, t_start, t_dur
         else if(recognized_index>=0)  val_color = "#FFF200";
         else if(isNaN(val))  val_color = "#FF000047";
         
-        cell.innerHTML = `<input type="text"  id="${radio_name + label_}" style="width:30px; background-color:black; color:${val_color};" value="${val}" onchange="FASER.dx_label('${seg_key}', '${label_}', this.value)">`;
+        cell.innerHTML = `<input type="text"  id="${radio_name + label_}" style="width:30px; background-color:black; color:${val_color};" value="${val}" onchange="SA.dx_label('${seg_key}', '${label_}', this.value)">`;
         
        
         if(pred_labels && pred_labels[0] && pred_labels[0][label_])  //have prediction data
@@ -340,7 +340,7 @@ function add_table_row(tbi, seg_i, seg_key, filename, seg_n, N_f, t_start, t_dur
             val = NaN;
             thtml += `<input type="range" min="0" max="100" value="${val}" step="5" class="slider hideDiv" 
             id="${radio_name + label_}" 
-            onchange="FASER.dx_label('${seg_key}', '${label_}', this.value)">
+            onchange="SA.dx_label('${seg_key}', '${label_}', this.value)">
             <small class="hide" id="${radio_name + label_}_i">&nbsp${label_}:${val}</small>
             </input>`;
         }
@@ -350,7 +350,7 @@ function add_table_row(tbi, seg_i, seg_key, filename, seg_n, N_f, t_start, t_dur
             val = Math.round(val * 100);
             thtml += `<input type="range" min="0" max="100" value="${val}" step="5" class="slider hideDiv" 
             id="${radio_name + label_}" style="background-color:${clr};" 
-            onchange="FASER.dx_label('${seg_key}', '${label_}', this.value)">
+            onchange="SA.dx_label('${seg_key}', '${label_}', this.value)">
             <small class="hide" id="${radio_name + label_}_i">&nbsp${label_}:${val}</small>
             </input>`;
         }
