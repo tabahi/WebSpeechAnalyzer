@@ -1,5 +1,9 @@
 # WebSpeechAnalyzer
-Try phoneme analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/](https://tabahi.github.io/WebSpeechAnalyzer/)
+
+Try speech analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?dev=1](https://tabahi.github.io/WebSpeechAnalyzer/)
+
+Try emotion analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?type=cats&label=emotion](https://tabahi.github.io/WebSpeechAnalyzer/?type=cats&label=emotion)
+
 
 Mel spectrum demo at: [tabahi.github.io/WebSpeechAnalyzer/?mode=2](https://tabahi.github.io/WebSpeechAnalyzer/?mode=2&p=samples/Haendel_Lascia_chi_o_pianga.mp4 )
 
@@ -72,10 +76,10 @@ Data is collected in the browser's local storage. Chrome has a fixed limited sto
 
 To see more details about features, see `function formant_features(formants)` in file `./src/FormantAnalyzer/formants.js`.
 
-The `Segment Formants` and `Phoneme Formants` output modes return 18 features per time frame (~25ms). These 18 features include 3 features of 6 formants; mel-frequency (energy weighted), sum of power of formant across it's (vertical) bandwidth, and the bandwidth span of the formant. The colors at the peak amplitudes of formants in the the plot represent formants f0 to f6 as green, magenta, cyan, orange, purple, purple, purple...
+The `Segment Formants` and `Syllable Formants` output modes return 18 features per time frame (~25ms). These 18 features include 3 features of 6 formants; mel-frequency (energy weighted), sum of power of formant across it's (vertical) bandwidth, and the bandwidth span of the formant. The colors at the peak amplitudes of formants in the the plot represent formants f0 to f6 as green, magenta, cyan, orange, purple, purple, purple...
 
 ## ML Training
 
-Currently, only the "Segment Features" and "Phoneme Features" are the trainable modes because they output fixed number of features (40) per segment or phoneme. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
+Currently, only the "Segment Features" and "Syllable Features" are the trainable modes because they output fixed number of features (40) per segment or syllable. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
 
 In case, someone wants to use CNN layers with padding / masking etc to work with all other modes, then edit the source in `function train_nn(db_id, label_type, label_name)` in file `neuralmodel.js`.
