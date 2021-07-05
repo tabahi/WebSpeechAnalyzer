@@ -47,7 +47,7 @@
         }
 
         .center-content {
-            max-width: 900px;
+            max-width: 1200px;
             margin: auto;
         }
 
@@ -110,21 +110,21 @@
         <a href="https://github.com/tabahi/WebSpeechAnalyzer">Github</a>
     </div>
 
-    <div class="w3-container w3-center">
-        <h3>Speech Analyzer</h3>
+    <div class="w3-container w3-center w3-opacity">
+        <h5 id="app_title">Web Speech Analyzer</h5>
     </div>
 
 
     <div class="w3-container w3-bottombar w3-border-dark-gray"> <!-- Main body container -->
 
         <div class="w3-row w3-center w3-animate-zoom" id="canvas_div" style="display: none;">
-            <canvas id="SpectrumCanvas" width="1200" height="400" ></canvas>
+            <canvas id="SpectrumCanvas" width="1200" height="300" ></canvas>
         </div>
 
        
 
         <div class="w3-row w3-center">
-            <p id="msg">Press Demo</p>
+            <p id="msg">Loading...</p>
             
         </div>
 
@@ -171,10 +171,12 @@
                                 <option value="1">Bars</option>
                                 <option value="2">Spectrum</option>
                                 <option value="3">Segments</option>
-                                <option value="4" selected>Segment Formants</option>
-                                <option value="5">Segment Features</option>
-                                <option value="6">Phoneme Formants</option>
-                                <option value="7">Phoneme Features</option>
+                                <option value="4">Segment Formants</option>
+                                <option value="5">Segment Features [ML]</option>
+                                <option value="10">Syllable Formants </option>
+                                <option value="11">Distributions 264x [ML]</option>
+                                <option value="12">Syllable Curves 23x [ML]</option>
+                                <option value="13" selected>Syllable 53x [ML]</option>
                             </select> 
                         </div>
 
@@ -280,7 +282,7 @@
 
         
 
-        
+        <div id="speedometers_div" class="center-content w3-row w3-center w3-padding-small w3-animate-top" style="display: none;"></div>
         
         <div class="w3-row w3-center w3-padding-small">     <!-- Buttons -->
 
@@ -288,7 +290,9 @@
             
             <input type="button" id="mic_button" value="Mic" class="w3-button w3-wide w3-border w3-border-amber w3-padding" disabled>
             
-            <button onclick="document.getElementById('settings_model').style.display='block'" class="w3-button w3-small w3-border w3-border-brown">Settings</button>
+            <button onclick="document.getElementById('settings_model').style.display='block'" class="w3-button w3-small w3-border w3-border-brown"  id="settings_button" disabled>Settings</button>
+
+            <input class="w3-check w3-margin-left" id="pred_emo_en" onchange="SA.prediction_meter_enable(this.checked)" type="checkbox" title="Currently only works at output level: Syllable 53x." checked hidden> <label for="pred_emo_en" title="Currently only works at output level: Syllable 53x."  id="pred_emo_en_lbl" hidden>Predict Emotion</label>
 
             
         </div>
@@ -303,23 +307,27 @@
             </div>
         </div>
         
-        <!--
-        <div class="w3-row w3-center w3-padding-16">
-            <canvas id="AnalysisCanvas" width="1450" height="400" ></canvas>
-        </div>
-        -->
+        
+        
+
+
+
+
+
+
+
 
 
     </div>  <!-- Main body container ends -->
 
-    <div class="center-content w3-row w3-center w3-padding-32 w3-small">
+    <div id="dev_div" class="center-content w3-row w3-center w3-padding-32 w3-small" style="display: none;">
         
-    <input class="w3-check w3-margin-left" id="data_collect_en" onchange="SA.data_collect_en(this.checked)" type="checkbox"> <label for="data_collect_en" >Data Collect</label>
+    <input class="w3-check w3-margin-left" id="data_collect_en" onchange="SA.data_collect_en(this.checked)" type="checkbox" title="Collect output features in browser's memory to download and analyze."  > <label for="data_collect_en">Data Collect</label>
 
-    <input class="w3-check w3-margin-left" id="ML_train_en" onchange="SA.ML_train_en(this.checked)" type="checkbox" disabled> <label for="ML_train_en" >ML Training</label>
+    <input class="w3-check w3-margin-left" id="ML_train_en" onchange="SA.ML_train_en(this.checked)" type="checkbox" title="Only supports the [ML] output levels" disabled > <label for="ML_train_en" >ML Training </label>
     </div>
 
-    <div class="w3-container w3-border-bottom">  <!-- DB Table container -->
+    <div id="data_main_div" class="w3-container w3-border-bottom" style="display: none;">  <!-- DB Table container -->
 
 
         <div class="center-content w3-row w3-center w3-padding-32" id="table_btns_div">
@@ -350,13 +358,32 @@
                 <div class="w3-container w3-theme-d2"> <!-- DB settings buttons-->
 
                     <div class="w3-row w3-padding-16">
+                    <div class="w3-col m2">
+                        <label>DB ID</label>
+                        <input class="w3-input w3-dark-input" type="number" id="db_id" placeholder='1' value='1' style="width:80%" title='To create multiple databases, use different ID for each one.'>
+                    </div>
 
-                        <label for="up_data_file" class="w3-margin-left w3-tiny"> Load Data:</label>
-            <input type="file" id="up_data_file" name="up_data_file" accept="application/JSON" class="w3-margin-right w3-button w3-tiny">
+                        <div class="w3-col m4">
+                        <label for="up_data_file" class="w3-margin-left w3-tiny"> Reload Data:</label>
+            <input type="file" id="up_data_file" name="up_data_file" accept="application/JSON" class="w3-margin-right w3-button w3-tiny" title="Reload the JSON data file that was downloaded from here before.">
+                    </div>
+
+                    <div class="w3-col m2  w3-tiny">
+                        <button onclick="SA.download_db_table('JSON', document.getElementById('download_only_selected').checked)" class="w3-button w3-border w3-border-gray w3-green">Download JSON</button>
+                    </div>
+
+                    <div class="w3-col m2 w3-tiny">
+                        <button onclick="SA.download_db_table('CSV', document.getElementById('download_only_selected').checked)" class="w3-button w3-border w3-border-gray w3-green">Download CSV</button>
+                    </div>
+
+                    
+                    
 
                     </div>
 
                     <div class="w3-row w3-padding-16">
+
+                        
 
                         <div class="w3-col m2">
                             <button onclick="SA.clear_db_table()" class="w3-button w3-border w3-border-gray  w3-black">Clear all</button>
@@ -365,39 +392,44 @@
                         <div class="w3-col m2">
                             <button onclick="SA.clear_labels(false, true)" class="w3-button w3-border w3-border-gray w3-black">Clear Predictions</button>
                         </div>
+                        <div class="w3-col m2">
+                            <button onclick="SA.clear_labels(false, false)" class="w3-button w3-border w3-border-gray w3-black">Clear Wrong</button>
+                        </div>
+
 
                         <div class="w3-col m2">
                             <button onclick="SA.clear_labels(true, false)" class="w3-button w3-border w3-border-gray w3-black">Clear Labels</button>
                         </div>
 
+                        <div class="w3-col m2  w3-tiny">
+                            <input class="w3-check w3-margin-left" id="download_only_selected" type="checkbox" title='When checked, only the samples with labels from "Class Labels" will be downloaded.' checked> <label for="download_only_selected" >Selected Download</label>
+                        </div>
+
                         
 
-                        <div class="w3-col m2">
-                        <button onclick="SA.download_db_table()" class="w3-button w3-border w3-border-gray w3-green">Download Data</button>
-                        </div>
+                        
                         
                     </div>
                 </div>
 
 
-                <div class="w3-container w3-theme-d4 w3-small"> <!-- DB settings-->
+                <div class="w3-container w3-theme-d4 "> <!-- DB settings-->
+                    <h5>Select Labels</h5>
 
-                    <div class="w3-row w3-padding-16">
+                    <div class="w3-row w3-padding-small">
 
-                        <h5>Labels</h5>
 
-                        <div class="w3-col m3">
-                            <input class="w3-check" id="use_custom_labels" title="Tip" type="checkbox" hidden>
-                        </div>
-
-                        <div class="w3-col m6">
+                        <div class="w3-col m12">
                             <label>Class Labels (Array of JSON objects)</label>
-                            <input class="w3-input w3-dark-input" type="text" id="class_labels" placeholder='[{ "emotion": ["A","H","N","S"] },  {"sex": ["M","F"] } ,  {"spkr": ["*"] } ]' value='[{ "label_A": ["A","H","N","S"] },  {"label_B": ["M","F"] } ,  {"spkr": ["*"] } ]' style="width:90%" title='For each label, only one class can be selected as 1, whiles others are set to 0. Format: Array of objects object [{"label" : ["Class A", "Class B"]}]'>
+                            <input class="w3-input w3-dark-input" type="text" id="class_labels" placeholder='[{ "emotion": ["A","H","N","S"] },  {"gender": ["M","F"] } ,  {"spkr": ["*"] } ]'
+                            value='[{ "emotion": ["A","H","N","S","U","T","D","F"] }, {"sex":["F", "M"]}, {"spkr":["*"]}, {"E":["*"]}, {"U":["*"]}]' style="width:90%" title='Enter the possible classes for categorical labels. Format: Array of objects as [{"gender" : ["M", "F"]}, {"label" : ["X", "Y"]}]. To select all possible classes for a label, use * as {"gender" : ["*"]} '>
                         </div>
-
-                        <div class="w3-col m6">
+                
+                    </div>
+                    <div class="w3-row w3-padding-small">
+                        <div class="w3-col m12">
                             <label>Ordinal Labels (Array of Strings)</label>
-                            <input class="w3-input w3-dark-input" type="text" id="ordinal_labels" placeholder='["X", "Y", "Z"]' value='["X"]' style="width:90%" title='Independent continuous scale variables between 0 and 1. Format: Array of Strings ["var1", "var2"]'>
+                            <input class="w3-input w3-dark-input" type="text" id="ordinal_labels" placeholder='["X", "Y", "Z"]' value='' style="width:90%" title='Independent continuous scale variables between 0 and 1. Format: Array of Strings ["var1", "var2"]'>
                         </div>
                     </div>
 
@@ -408,7 +440,7 @@
                         <h5>Parse labels</h5>
                         <p>Upload a label file. Only the labels prototyped above will be parsed. Use JSON format, where "i" gives the filename followed by labels. Example:
                         </p>
-                        <pre class="w3-text-amber">[{"i": "file001.wav", "sex": "F", "spkr": 1}, {"i": "file002.wav", "sex": "M", "spkr": 2}]</pre>
+                        <pre class="w3-text-amber">[{"i": "file001.wav", "gender": "F", "spkr": 1}, {"i": "file002.wav", "gender": "M", "spkr": 2}]</pre>
                         <div class="w3-col m3">
                             <label for="up_labels_file" class="w3-margin-left w3-tiny"> Load Labels:</label>
             <input type="file" id="up_labels_file" name="up_labels_file" accept="application/JSON" class="w3-margin-right w3-button w3-tiny">
@@ -488,34 +520,6 @@
         <div id="ML_training_div_modals"></div>
 
 
-          <!-- NN training edit Modal (example)-->
-        <!-- 
-        <div class="w3-row w3-center w3-padding-32">
-            <button onclick="document.getElementById('nn_edit_model').style.display='block'" class="w3-button w3-tiny w3-border w3-border-gray w3-margin-right">Edit</button>
-          <div id="nn_edit_model" class="w3-modal w3-animate-opacity">
-            <div class="w3-modal-content w3-card-4 w3-animate-zoom">
-                <header class="w3-container w3-theme-d1"> 
-                 <span onclick="document.getElementById('nn_edit_model').style.display='none'" 
-                 class="w3-button w3-red w3-xlarge w3-display-topright">&times;</span>
-                 <h2>Training</h2>
-                </header>
-                <div class="w3-container w3-theme-d2 w3-small">
-                    <div class="w3-row w3-padding-16">
-                        <textarea name="Text1" id="Textbox1" cols="10" rows="25" class="w3-input w3-dark-input" style="font-family: 'Courier New', Courier, monospace;"></textarea>
-                    </div>
-                </div>
-                <div class="w3-container  w3-theme-d1 w3-padding">
-                    <button class="w3-button w3-right w3-blue-grey w3-border w3-round-large w3-margin-left" onclick="document.getElementById('nn_edit_model').style.display='none'">Close</button>
-                    <button class="w3-button w3-right w3-teal w3-border w3-round-large w3-margin-right"
-                    onclick="console.log(JSON.parse (document.getElementById('Textbox1').value))">Start</button>
-                </div>
-                
-            </div>
-          </div>
-
-        </div>
-        -->
-
 
         <!-- ML training status text-->
         <pre id="nn_msg" class="w3-text-blue w3-wide"></pre>
@@ -526,16 +530,18 @@
 
     <div class="footer">
         <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            <img src="https://2no.co/16iex7.png"/>
             <span>
-                <b>Tabahi - Abdul Rehman</b>
+                <!--- <b>Tabahi - Abdul Rehman</b> -->
             </span>
             
-            <span>© 2021</span>
+            <span>© 情感计算, 自动化学院，中国地质大学 （武汉）, China University of Geosciences (Wuhan) 2020-2021</span>
           </a>
     </div>
     
-    <script src="app_assets/dist/ml5.min.js"></script>
-    <script src="app_assets/dist/main.js"></script>
+    <!--- <script src="./dist/ml5.min.js"></script> -->
+    <script src="https://unpkg.com/ml5@0.6.1/dist/ml5.min.js"></script>
+    <script src="./dist/main.js"></script>
 
     
     <script>
