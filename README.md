@@ -1,6 +1,6 @@
 # WebSpeechAnalyzer
 
-Try speech analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?dev=1](https://tabahi.github.io/WebSpeechAnalyzer/)
+Try speech analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?dev=1](https://tabahi.github.io/WebSpeechAnalyzer/?dev=1)
 
 Try emotion analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?type=cats&label=emotion](https://tabahi.github.io/WebSpeechAnalyzer/?type=cats&label=emotion)
 
