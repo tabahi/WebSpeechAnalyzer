@@ -17,7 +17,7 @@ Prerequisites: [Node.js](https://nodejs.org/en/download/), check versions >12 fo
 Install Webpack using `npm`
 ```cmd
 ::(project dir)
-cd app_assets
+cd WebSpeechAnalyzer
 
 npm init -y
 npm install webpack webpack-cli --save-dev
