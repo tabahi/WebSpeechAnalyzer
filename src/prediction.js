@@ -90,7 +90,7 @@ function nn_prediction(tdb_id, incoming, seg_time, predict_type, predict_label)
         {
             for(let ph = 0; ph < seg_time.length; ph++ )
             {
-                let ph_weight = parseFloat(seg_time[ph][1]); //duration in seconds
+                let ph_weight = Math.sqrt(parseFloat(seg_time[ph][1])); //duration in seconds
                 if(seg_time.length==1)
                 {
                     let wconf = result_out[ph].confidence * ph_weight;
