@@ -8,7 +8,7 @@ Try emotion analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?type=cats&lab
 Mel spectrum demo at: [tabahi.github.io/WebSpeechAnalyzer/?mode=2](https://tabahi.github.io/WebSpeechAnalyzer/?mode=2&p=samples/Haendel_Lascia_chi_o_pianga.mp4 )
 
 
-A JS [Web API](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) based spectrum analyzer for speech and music analysis. It can be used for labeling or feature extraction. There is also an option for training a neural network with ml5js.
+A JS [Web API](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) based spectrum analyzer for speech and music analysis. It can be used for labeling or feature extraction. There is also an option for training a neural network with ml5js that has tensorflow backend.
 
 
 ## Installation
@@ -51,10 +51,10 @@ AudioLauncher.configure(settings.spec_type, settings.process_level, settings.f_m
 var webAudioElement = new Audio("./audio_file.mp3");
 /*Parameters:*/
 const source = 2;   //1: Local file binary, 2: play from a web Audio, 3: mic
-const test_mode = true; //plots only
-const offline = false;  //play on speakers
-const callback = null;  //don't return extracted features
-const tags =[];         //no labels
+const test_mode = true; //plots only, it does not save features in memory
+const offline = false;  //play on speakers, set true to play silently
+const callback = null;  //callback function to which extracted features are passed
+const tags =[];     //array of labels that will be passed to callback after feature extraction
 
 /* Wait for audio file to load */
 webAudioElement.addEventListener("canplaythrough", event => {
@@ -76,10 +76,10 @@ Data is collected in the browser's local storage. Chrome has a fixed limited sto
 
 To see more details about features, see `function formant_features(formants)` in file `./src/FormantAnalyzer/formants.js`.
 
-The `Segment Formants` and `Syllable Formants` output modes return 18 features per time frame (~25ms). These 18 features include 3 features of 6 formants; mel-frequency (energy weighted), sum of power of formant across it's (vertical) bandwidth, and the bandwidth span of the formant. The colors at the peak amplitudes of formants in the the plot represent formants f0 to f6 as green, magenta, cyan, orange, purple, purple, purple...
+The `Segment Features` and `Syllable Features` output modes return 53 features per time frame (~25ms). These features include 16 features of top 3 formants; mel-frequency (energy weighted), sum of power of formant across it's (vertical) bandwidth, and the bandwidth span of the formant, and 5 features for the overall spectrum measurements such as pauses, noise, amplitude maximum and minimum etc. The colors at the peak amplitudes of formants in the the plot represent formants f0 to f6 as green, magenta, cyan, orange, purple, purple, purple. The code for statistical calculations of features can be found in `formants.js`. A better documentation are yet to come. Please contact the author if you need detailed explanations.
 
 ## ML Training
 
-Currently, only the "Segment Features" and "Syllable Features" are the trainable modes because they output fixed number of features (40) per segment or syllable. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
+Currently, only the `Segment Features` and `Syllable Features` are the trainable output levels because they output fixed number of features (53) per segment or syllable. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
 
 In case, someone wants to use CNN layers with padding / masking etc to work with all other modes, then edit the source in `function train_nn(db_id, label_type, label_name)` in file `neuralmodel.js`.
