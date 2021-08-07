@@ -10,7 +10,7 @@ Try emotion analyzer demo at: [tabahi.github.io/WebSpeechAnalyzer/?type=cats&lab
 
 Mel spectrum demo at: [tabahi.github.io/WebSpeechAnalyzer/?mode=2](https://tabahi.github.io/WebSpeechAnalyzer/?mode=2&p=samples/Haendel_Lascia_chi_o_pianga.mp4 )
 
-Bare minimum starter file: [tabahi.github.io/WebSpeechAnalyzer/simple.html](tabahi.github.io/WebSpeechAnalyzer/simple.html)
+Bare minimum starter file: [tabahi.github.io/WebSpeechAnalyzer/simple.html](https://tabahi.github.io/WebSpeechAnalyzer/simple.html)
 
 
 
