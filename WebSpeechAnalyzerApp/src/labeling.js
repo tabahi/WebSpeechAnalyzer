@@ -69,9 +69,9 @@ export function label_from_filename(filename) //called from localstore
 function load_json_labels_web() //not used
 {
         
-    const parse_DB_json = './dist/emo_labels/IEMOCAP_000000_index_list_2943.json';
-    //const parse_DB_json = './dist/emo_labels/MSP_000000_index_list.json';
-    //const parse_DB_json = './dist/emo_labels/RAVDESS_000000_index_list.json';
+    const parse_DB_json = './WebSpeechAnalyzerApp/dist/emo_labels/IEMOCAP_000000_index_list_2943.json';
+    //const parse_DB_json = './WebSpeechAnalyzerApp/dist/emo_labels/MSP_000000_index_list.json';
+    //const parse_DB_json = './WebSpeechAnalyzerApp/dist/emo_labels/RAVDESS_000000_index_list.json';
 
     return new Promise((resolve, reject)=>{
          if(!json_loaded) {

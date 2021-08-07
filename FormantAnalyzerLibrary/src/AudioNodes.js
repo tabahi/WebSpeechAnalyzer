@@ -3,7 +3,7 @@
 
 const segmentor = require('./segmentor.js');
 const plotter = require('./plotter.js');
-const AnalyzerWorklet_link = './dist/analyzernode.min.js';
+const AnalyzerWorklet_link = 'https://unpkg.com/formantanalyzer@1.1.6/analyzernode.min.js';
 //AudioWorklet module responsible for FFT and Mel Spectrum calculations in realtime, it is the heaviest process as it has many 'for loops' for each frame.
 
 //Generalized function for AudioContext in new and old browser
@@ -52,11 +52,11 @@ export function reset_nodes(spec_type, f_min, f_max, N_fft_bins, N_mel_bins, win
     });
 }
 
-export function reset_segmentor(process_level, spec_bands, plot_len, window_step, pause_length, min_segment_length, callback, test_play, file_label=[])
+export function reset_segmentor(process_level, spec_bands, plot_len=200, window_step=15, pause_length=200, min_segment_length=50, auto_noise_gate=true, voiced_max_dB=150, voiced_min_dB=50, callback=null, test_play=true, file_label=[]) 
 {
     return new Promise((resolve, reject)=>{
 
-        segmentor.reset_segmentation(process_level, spec_bands, plot_len, window_step, pause_length, min_segment_length, callback, test_play, file_label).then(function(){
+        segmentor.reset_segmentation(process_level, spec_bands, plot_len, window_step, pause_length, min_segment_length, auto_noise_gate, voiced_max_dB, voiced_min_dB, callback, test_play, file_label).then(function(){
             resolve("ready");
             }).catch(function(err) {
                 reject('reset_segmentor failed: ' + err);

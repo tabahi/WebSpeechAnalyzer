@@ -167,7 +167,7 @@
                             </div>
                         <div class="w3-col m2">
                             <label>Output level</label>
-                            <select class="w3-select w3-dark-input" id="process_level" style="width:90%">
+                            <select class="w3-select w3-dark-input" id="output_level" style="width:90%">
                                 <option value="1">Bars</option>
                                 <option value="2">Spectrum</option>
                                 <option value="3">Segments</option>
@@ -204,6 +204,19 @@
                             <label>Min Length (ms)</label>
                             <input class="w3-input w3-dark-input" type="number" id="min_seg_length" placeholder="250" style="width:90%" title="Minimum duration of a speech segment (in milliseconds). Shorter than this speech segments will be ignored. Set a smaller value for fast languages e.g., espanol">
                         </div>
+                        <div class="w3-col m2">
+                            <input class="w3-check" id="auto_noise_gate" title="If enabled, noise gate will automatically adjust the input volume threshold to separate silence from voice. If disabled, Voiced Min and Max will be used." type="checkbox">
+                            <label for="auto_noise_gate" title="If enabled, noise gate will automatically adjust the input volume threshold to separate silence from voice. If disabled, Voiced Min and Max will be used.">Auto Noise-Gate</label>
+                        </div>
+                        <div class="w3-col m2">
+                            <label>Voiced Min</label>
+                            <input class="w3-input w3-dark-input" type="number" id="voiced_min_dB" placeholder="10" style="width:90%" title="Minimum amplitude for voiced segments in dB. Any sound below this amplitude limit will be ignored as silence.">
+                        </div>
+                        <div class="w3-col m2">
+                            <label>Voiced Max</label>
+                            <input class="w3-input w3-dark-input" type="number" id="voiced_max_dB" placeholder="150" style="width:90%" title="Maximum amplitude for voiced segments in dB. Any sound above this amplitude limit will be floored to this value.">
+                        </div>
+
                         
                     </div>
                 </div>
@@ -539,9 +552,9 @@
           </a>
     </div>
     
-    <!--- <script src="./dist/ml5.min.js"></script> -->
+    <!--- <script src="./WebSpeechAnalyzerApp/dist/ml5.min.js"></script> -->
     <script src="https://unpkg.com/ml5@0.6.1/dist/ml5.min.js"></script>
-    <script src="./dist/main.js"></script>
+    <script src="./WebSpeechAnalyzerApp/dist/main.js"></script>
 
     
     <script>

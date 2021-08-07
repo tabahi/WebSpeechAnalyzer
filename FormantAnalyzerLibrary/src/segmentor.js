@@ -7,7 +7,7 @@ const fm_mod = require('./formants.js');
 const utt_mod = require('./uttfeatures.js');
 const stats = require('./stats.js');
 
-var s_set = {spec_bands: -1, plot_len:300, max_voiced_bin:80, window_step:0.025, current_frame: 0, play_end:false, no_fm_segs:0, c_ci:0, c_started:-1, current_label: [], callbacks_processed:0, seg_limit_1:200, seg_limit_2:250, seg_min_frames:20, seg_breaker:12, process_level:5, call_at_end:false};
+var s_set = {spec_bands: -1, plot_len:200, max_voiced_bin:80, window_step:0.025, current_frame: 0, play_end:false, no_fm_segs:0, c_ci:0, c_started:-1, current_label: [], callbacks_processed:0, seg_limit_1:200, seg_limit_2:250, seg_min_frames:20, seg_breaker:12, process_level:5, auto_noise_gate: true, voiced_max_dB:100, voiced_min_dB:10, call_at_end:false};
 
 var spec_hist = []; //mel spec raw
 var segments_raw = [];  //array to hold 'fm'
@@ -35,7 +35,7 @@ var callback_func; //callback_after_elements_extraction
 let test_mode = true;
 const break_at_limits = false;
 
-export async function reset_segmentation(process_level, spec_bands, plot_len, window_step, pause_length, min_segment_length, callback=null, test_play=true, file_label=[])
+export async function reset_segmentation(process_level, spec_bands, plot_len=200, window_step=15, pause_length=200, min_segment_length=50, auto_noise_gate=true, voiced_max_dB=150, voiced_min_dB=50, callback=null, test_play=true, file_label=[])
 {
     spec_hist = null;
     segments_raw = null;
@@ -62,6 +62,9 @@ export async function reset_segmentation(process_level, spec_bands, plot_len, wi
             s_set.window_step = window_step/1000;   //s_set.window_step is in whole 'seconds' because it is used to calc start/end timings of seg
             s_set.seg_breaker = (pause_length>window_step*2)?pause_length/window_step:250/window_step;  //at least twice of window_step (or 250ms)
             s_set.seg_min_frames = parseInt(min_segment_length/window_step);   //minium segment size is 250ms, shorter segments sandwiched bw pauses will be ignored.
+
+            
+
             s_set.current_label = file_label;
             
             s_set.play_end = false;
@@ -85,8 +88,19 @@ export async function reset_segmentation(process_level, spec_bands, plot_len, wi
             syllables = [];
             syllables_ft = [];
 
-            context_maximum = 50;
-            local_minimum = 2;
+            s_set.auto_noise_gate = auto_noise_gate;
+            s_set.voiced_max_dB = voiced_max_dB;
+            s_set.voiced_min_dB = voiced_min_dB;
+            if(!s_set.auto_noise_gate)
+            {
+                context_maximum = Math.pow(10, s_set.voiced_max_dB/20);
+                local_minimum = Math.pow(10, s_set.voiced_min_dB/20);
+            }
+            else
+            {
+                context_maximum = 50;
+                local_minimum = 2;
+            }
             max_history_len = 0;
             old_maxes_sum = 0;
             old_maxes_n = 0;
@@ -302,12 +316,13 @@ async function peaks_n_valleys_process()
                     seg_reset(-1);
                 });
             }
-            else amplitude_control(h_peak_amp);
+            else if(s_set.auto_noise_gate) amplitude_control(h_peak_amp);
             
         }
         else
         {
             //console.log(h_peak_amp + '\t' + local_minimum + '\t' + (all_peaks_sum/(ci_energy - all_peaks_sum)));
+            if(s_set.auto_noise_gate)
             amplitude_control(h_peak_amp);
             //console.log(this_ci);
             fm_mod.accumulate_fm(bins, peaks, this_ci, ci_energy, local_minimum);  //forward to formant collector mod
@@ -483,6 +498,7 @@ function amplitude_control(h_peak_amp)
             }
         }
         let Max_log = Math.log10(context_maximum);
+        
         if(Max_log > 7) local_minimum = parseInt(Math.pow(10, Max_log-3)/20);
         else if(Max_log > 6) local_minimum = parseInt(Math.pow(10, Max_log-3)/2);
         else if(Max_log > 4) local_minimum = parseInt(Math.pow(10, Max_log-2)/2);
@@ -663,10 +679,14 @@ export function spectrum_push(new_bins, frame_n) /* AudioNodes.js forwards the b
             spec_hist.push(new_bins);   //this is the most raw buffer used only for plotting
             if(s_set.process_level<=1) spec_hist.splice(0,spec_hist.length-1);
             else if(spec_hist.length > s_set.plot_len) spec_hist.splice(0,1);
-            let this_max = stats.arrayMax(new_bins);  //low level amplitude control
-            if(this_max > context_maximum) { context_maximum = this_max; max_history_len = 0; last_real_high=this_max;}
-            else if((max_history_len>s_set.seg_limit_1) && (context_maximum>last_real_high/4)) {context_maximum *= 0.99;}
-            else max_history_len++;
+
+            if(s_set.auto_noise_gate)
+            {
+                let this_max = stats.arrayMax(new_bins);  //low level amplitude control
+                if(this_max > context_maximum) { context_maximum = this_max; max_history_len = 0; last_real_high=this_max;}
+                else if((max_history_len>s_set.seg_limit_1) && (context_maximum>last_real_high/4)) {context_maximum *= 0.99;}
+                else max_history_len++;
+            }
         }
         else
         {

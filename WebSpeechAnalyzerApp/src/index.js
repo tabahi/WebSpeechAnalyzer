@@ -6,7 +6,7 @@ npm run build
 
 */
 
-const AudioLauncher = require('./FormantAnalyzer/AudioLauncher.js');
+const FormantAnalyzer = require('formantanalyzer');
 const storage_mod = require('./localstore.js');  //forwards extracted features to a storage module (see call_backed)
 const labeling_mod = require('./labeling.js');
 const nn_mod = require('./neuralmodel.js');
@@ -18,7 +18,7 @@ const CANVAS_CTX = document.querySelector('#SpectrumCanvas').getContext('2d');
 var BOX_WIDTH = window.screen.availWidth;
 var BOX_HEIGHT = 300;
 
-var settings = { offline:false, plot_enable:true, spec_type: 1, process_level: 13, plot_len: 300, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 15, pause_length:200, min_seg_length:50, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.00, slow:false, DB_ID:1, predict_en:false, predict_type:"cats", predict_label:"emotion", collect:false, ML_en: false};
+var settings = { offline:false, plot_enable:true, spec_type: 1, output_level: 13, plot_len: 300, f_min: 50, f_max: 4000, N_fft_bins: 256, N_mel_bins: 128, window_width: 25, window_step: 15, pause_length:200, min_seg_length:50, plot_lag:1, pre_norm_gain: 1000, high_f_emph:0.00, auto_noise_gate: true, voiced_max_dB:100, voiced_min_dB:10, slow:false, DB_ID:1, predict_en:false, predict_type:"cats", predict_label:"emotion", collect:false, ML_en: false};
 
 var play_url = 'samples/263771femaleprotagonist.wav';
 //var play_url = "https://raw.githubusercontent.com/tabahi/Mel-Spectrum-Analyzer/master/Haendel_Lascia_chi_o_pianga.mp4";
@@ -29,28 +29,28 @@ var status = { playing:false, files_processed:0, current_file_index:0, Source:1 
 
 var loaded_files = null;    //this holds the current files loaded in the drop zone
 
-document.getElementById('msg').textContent = "V:Jul05a";
+document.getElementById('msg').textContent = "V:Aug07a";
 
 /*This function is called asynchronously after each segment or syllable depending on the process level. si is the index of segment/syllable out of all since reset*/
 async function call_backed(si, seg_label, seg_time, incoming)
 {
     
-    if(settings.process_level == 11) //level of whole clip cum features
+    if(settings.output_level == 11) //level of whole clip cum features
     {
         //console.log(incoming);
         if(settings.collect)
-            storage_mod.StoreFeatures(settings.process_level, settings.DB_ID, 0, seg_label, seg_time, incoming);
+            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, 0, seg_label, seg_time, incoming);
         
     }
 
-    else if(settings.process_level == 13) //Syllable 53x statistical features
+    else if(settings.output_level == 13) //Syllable 53x statistical features
     {
         if(seg_time.length != incoming.length) console.error("Length mismatch\t" + seg_time.length + '\t' + incoming.length);
         
         if(settings.collect)
         for(let ph = 0; ph < incoming.length; ph++ ) 
         {
-            storage_mod.StoreFeatures(settings.process_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
+            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
         }
         
         if(settings.plot_enable && settings.predict_en)
@@ -58,42 +58,42 @@ async function call_backed(si, seg_label, seg_time, incoming)
             pred_mod.predict_by_multiple_syllables(settings.predict_type, settings.predict_label, si, incoming, seg_time, callback_after_pred);
         }
     }
-    else if(settings.process_level == 12) //Syllable interpolation polynomials
+    else if(settings.output_level == 12) //Syllable interpolation polynomials
     {
         if(seg_time.length != incoming.length) console.error("Length mismatch\t" + seg_time.length + '\t' + incoming.length);
         
         if(settings.collect)
         for(let ph = 0; ph < incoming.length; ph++ ) 
         {
-            storage_mod.StoreFeatures(settings.process_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
+            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
         }
     }
-    else if(settings.process_level == 10) //plain syllable formants
+    else if(settings.output_level == 10) //plain syllable formants
     {
         if(seg_time.length != incoming.length) console.error("Length mismatch");
 
         for(let ph = 0; ph < incoming.length; ph++ ) 
         {
             if(settings.collect)
-            storage_mod.StoreFeatures(settings.process_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
+            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
         }
     }
-    else if(settings.process_level == 5)
+    else if(settings.output_level == 5)
     {
         if(settings.collect)
-        storage_mod.StoreFeatures(settings.process_level, settings.DB_ID, si, seg_label, seg_time, incoming);
+        storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, si, seg_label, seg_time, incoming);
     }
-    else if(settings.process_level == 4)
+    else if(settings.output_level == 4)
     {
         if(settings.collect)
-        storage_mod.StoreFeatures(settings.process_level, settings.DB_ID, si, seg_label, seg_time, incoming);
+        storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, si, seg_label, seg_time, incoming);
     }
     return;
 }
 
 function callback_after_pred(si, top_lbl_n_conf)
 {
-    if(settings.plot_enable) AudioLauncher.set_predicted_label_for_segment(si, 1, top_lbl_n_conf);
+    if(settings.plot_enable) FormantAnalyzer.set_predicted_label_for_segment(si, 1, top_lbl_n_conf);
     //1 is the index in array labels[]
 }
 
@@ -104,8 +104,8 @@ export function prediction_meter_enable(isEnable)
     if(isEnable)
     {
         //currently, only process level is trained to predict emotions
-        settings.process_level = 13;
-        document.getElementById("process_level").value = settings.process_level;
+        settings.output_level = 13;
+        document.getElementById("output_level").value = settings.output_level;
 
         settings.predict_en = true;
         pred_mod.reset_predictions();
@@ -226,7 +226,7 @@ export function play_file_sample(filename, play_offset=null, play_duration=null,
             
             ConfigureLauncher();
             status.playing = true;
-            AudioLauncher.LaunchAudioNodes(e.target.result, call_backed, [this_file_name], false, 1, test_mode, play_offset, play_duration).then(function()
+            FormantAnalyzer.LaunchAudioNodes(1, e.target.result, call_backed, [this_file_name], false, test_mode, play_offset, play_duration).then(function()
             {
                 stop_playing("Finished processing sample");
                 document.getElementById('msg').textContent = "Finished playing: " + String(this_file_name);
@@ -280,7 +280,7 @@ function PlayNextFile() //play the files loaded in drop zone queue
             document.getElementById('msg').textContent = "Playing file " + String(status.current_file_index+1) + "/" + String(loaded_files.length) + ', ' + this_file_name;
             
             ConfigureLauncher();
-            AudioLauncher.LaunchAudioNodes(e.target.result, call_backed, [this_file_name], settings.offline, 1, false, null, null).then(function()
+            FormantAnalyzer.LaunchAudioNodes(1, e.target.result, call_backed, [this_file_name], settings.offline, false, null, null).then(function()
             {
                 e = null;   //clear memory
                 reader = null;
@@ -359,8 +359,32 @@ function finished_file_play(no_delay=false)   //it called after the LaunchAudioN
 
 function ConfigureLauncher()
 {
+    let launch_config = { plot_enable: settings.plot_enable,
+        spec_type: settings.spec_type,
+        output_level: settings.output_level,
+        plot_len: settings.plot_len,
+        f_min: settings.f_min,
+        f_max: settings.f_max,
+        N_fft_bins: settings.N_fft_bins,
+        N_mel_bins: settings.N_mel_bins,
+        window_width: settings.window_width,
+        window_step: settings.window_step,
+        pause_length: settings.pause_length,
+        min_seg_length:settings.min_seg_length,
+        auto_noise_gate: settings.auto_noise_gate,
+        voiced_max_dB: settings.voiced_max_dB,
+        voiced_min_dB: settings.voiced_min_dB,
+        plot_lag: settings.plot_lag,
+        pre_norm_gain: settings.pre_norm_gain,
+        high_f_emph: settings.high_f_emph,
+        plot_canvas: CANVAS_CTX,
+        canvas_width: BOX_WIDTH,
+        canvas_height: BOX_HEIGHT};
+
     /* Configure the Audio Launcher*/
-    AudioLauncher.configure(settings.spec_type, settings.process_level, settings.f_min, settings.f_max, settings.N_fft_bins, settings.N_mel_bins, settings.window_width, settings.window_step, settings.pre_norm_gain, settings.high_f_emph, settings.pause_length, settings.min_seg_length, settings.plot_enable, settings.plot_len, settings.plot_lag, CANVAS_CTX, BOX_WIDTH, BOX_HEIGHT);
+    FormantAnalyzer.configure(launch_config);
+
+    if(settings.predict_en) //if using any Neural Network prediction model
     pred_mod.reset_predictions();
 }
 
@@ -368,7 +392,7 @@ function ConfigureLauncher()
 function stop_playing(reason)
 {
     status.playing = false;
-    AudioLauncher.StopAudioNodes(reason);
+    FormantAnalyzer.StopAudioNodes(reason);
     document.getElementById("play_button").value = "Play";
     document.getElementById("demo_button").value = "Demo";
     document.getElementById("mic_button").value = "Mic";
@@ -422,7 +446,7 @@ function play_web_audio(web_audio_url)
                 status.playing = true;
                 
                 ConfigureLauncher();
-                AudioLauncher.LaunchAudioNodes(webAudioElement, call_backed, ['demo'], false, 2, false).then(function()
+                FormantAnalyzer.LaunchAudioNodes(2, webAudioElement, call_backed, ['demo'], false, false).then(function()
                 {
                     //status.playing = false;
                     //AudioNodes.disconnect_nodes("End file");
@@ -504,7 +528,7 @@ document.querySelector('#mic_button').addEventListener('click', function(e) {
             status.playing = true;
             
             ConfigureLauncher();
-            AudioLauncher.LaunchAudioNodes(null, call_backed, ['mic'], false, 3, false, null, null).then(function()
+            FormantAnalyzer.LaunchAudioNodes(3, null, call_backed, ['mic'], false, false, null, null).then(function()
             {
                 stop_playing("End sop play");
                 
@@ -688,7 +712,7 @@ export function data_collect_en(check_en)
     else
     {
         document.getElementById("data_main_div").style.display = "block";
-        if((settings.process_level==5 || settings.process_level>=11)==false)
+        if((settings.output_level==5 || settings.output_level>=11)==false)
         {
             document.getElementById("ML_train_en").checked = false;
             document.getElementById("ML_training_div").innerHTML = "";
@@ -716,7 +740,7 @@ export function update_settings()
     settings.offline = document.getElementById("offline").checked;
 
     settings.spec_type = parseInt(document.getElementById("spec_type").value);
-    settings.process_level = parseInt(document.getElementById("process_level").value);
+    settings.output_level = parseInt(document.getElementById("output_level").value);
 
     
     settings.plot_enable = document.getElementById("plot_enable").checked;
@@ -735,6 +759,12 @@ export function update_settings()
     settings.pre_norm_gain = parseInt(document.getElementById("pre_norm_gain").value);
     settings.high_f_emph = parseFloat(document.getElementById("high_f_emph").value);
     settings.plot_lag = parseInt(document.getElementById("plot_lag").value); 
+
+    
+    settings.auto_noise_gate = document.getElementById("auto_noise_gate").checked;
+    settings.voiced_max_dB = parseFloat(document.getElementById("voiced_max_dB").value);
+    settings.voiced_min_dB = parseFloat(document.getElementById("voiced_min_dB").value);
+
 
     //settings checks:
     settings.f_min = settings.f_min < 0 ? 0 : settings.f_min;
@@ -774,7 +804,7 @@ function dom_settings()
     document.getElementById("offline").checked = settings.offline;
 
     document.getElementById("spec_type").value = settings.spec_type;
-    document.getElementById("process_level").value = settings.process_level;
+    document.getElementById("output_level").value = settings.output_level;
     
     document.getElementById("plot_enable").checked = settings.plot_enable;
     document.getElementById("plot_len").value = settings.plot_len;
@@ -788,10 +818,15 @@ function dom_settings()
     document.getElementById("window_step").value = settings.window_step;
     document.getElementById("pause_length").value = settings.pause_length;
     document.getElementById("min_seg_length").value = settings.min_seg_length;
+
+    document.getElementById("auto_noise_gate").checked = settings.auto_noise_gate;
+    document.getElementById("voiced_max_dB").value = settings.voiced_max_dB;
+    document.getElementById("voiced_min_dB").value = settings.voiced_min_dB;
     
     document.getElementById("pre_norm_gain").value = settings.pre_norm_gain;
     document.getElementById("high_f_emph").value = settings.high_f_emph;
     document.getElementById("plot_lag").value = settings.plot_lag;
+
 
     if(settings.plot_enable) document.getElementById('canvas_div').style.display='block';
     else document.getElementById('canvas_div').style.display='none';
@@ -823,7 +858,7 @@ function setup()
     {
         //set process level
         let new_mode = url_params.get("mode");
-        if((new_mode>0) && (new_mode<=13)) settings.process_level = new_mode;
+        if((new_mode>0) && (new_mode<=13)) settings.output_level = new_mode;
         dom_settings();
     }
     if(url_params.has("type") && url_params.has("label"))
@@ -836,7 +871,7 @@ function setup()
             if(settings.predict_label=='emotion')
             {
                 document.getElementById('app_title').textContent = "Real-time Speech Emotion Analyzer";
-                settings.process_level = 13;
+                settings.output_level = 13;
                 dom_settings();
                 document.getElementById('pred_emo_en').hidden = false;
                 document.getElementById('pred_emo_en_lbl').hidden = false;
@@ -878,7 +913,8 @@ function setup()
         let ext_address = url_params.get("p");
         console.log("Playing external URL: " + (ext_address));
         play_url = ext_address;
-        play_web_audio(ext_address);
+        //play_web_audio(ext_address);
+        document.getElementById('msg').textContent = "Press Demo to play " + play_url;
     }
     
     disable_buttons(false);

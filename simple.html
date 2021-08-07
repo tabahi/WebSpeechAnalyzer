@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/css/w3.css">
+    <link rel="stylesheet" href="assets/css/w3-theme-black.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <title>Formant Analyzer</title>
+  </head>
+
+<body class="w3-black">
+    
+    
+    <div class="topnav">
+        <a href="https://github.com/tabahi/WebSpeechAnalyzer">Github</a>
+    </div>
+
+    <div class="w3-container w3-center w3-opacity">
+        <h5 id="app_title">Formant Analyzer</h5>
+    </div>
+
+
+    <div class="w3-container w3-bottombar w3-border-dark-gray"> <!-- Main body container -->
+
+
+        <div class="w3-row w3-center w3-animate-zoom" id="canvas_div">
+            <canvas id="SpectrumCanvas" width="1200" height="300" ></canvas>
+        </div>
+
+       
+        <div class="w3-row w3-center">
+            <p id="msg">Press Demo</p>
+        </div>
+
+
+
+        <div class="w3-row w3-center w3-padding-small">     <!-- Buttons -->
+
+ 
+            <input type="button" id="mic_button" value="Mic" class="w3-button w3-wide w3-border w3-border-amber w3-padding">
+            
+            
+        </div>
+        
+        <div class="w3-row w3-center w3-padding-small"> <!-- File loading zone -->
+            <div id="dropZone" class="w3-card-4">
+                <p>
+                    <label for="filesx" class="w3-hover-text-amber">Load Audio: </label>
+                    <input type="file" id="filesx" name="filesx[]" onchange="readmultifiles(this.files)" multiple="" class="w3-button w3-hover-border-khaki w3-padding" placeholder="Audio files" accept="audio/*" />
+                    <input type="button" id="play_button" value="Play" class="w3-button w3-wide w3-border w3-border-light-blue w3-padding">
+                </p>
+            </div>
+        </div>
+        
+        
+        
+
+
+
+
+
+
+
+
+
+    </div>  <!-- Main body container ends -->
+
+    
+
+
+    <div class="footer">
+        <a href="https://github.com/tabahi/WebSpeechAnalyzer/blob/main/simple.html">
+            <span>Formant Analyzer bare minium starter file</span>
+          </a>
+    </div>
+    
+    <script src="https://unpkg.com/formantanalyzer/index.js"></script>
+
+    
+    <script>
+    
+    var play_status = { playing:false, files_processed:0, current_file_index:0, Source:1 };
+    var loaded_files = null;
+
+    function Configure_FormantAnalyzer()
+    {
+        const BOX_HEIGHT = 300;
+        const BOX_WIDTH = window.screen.availWidth - 50; //reset the size of canvas element using the screen width
+        document.getElementById('SpectrumCanvas').width = BOX_WIDTH;
+        document.getElementById('SpectrumCanvas').height = BOX_HEIGHT;
+        
+        let launch_config = { plot_enable: true,
+        spec_type: 1,
+        output_level: 2,
+        plot_len: 200,
+        f_min: 50,
+        f_max: 4000,
+        N_fft_bins: 256,
+        N_mel_bins: 128,
+        window_width: 25,
+        window_step: 15,
+        pause_length: 200,
+        min_seg_length: 50,
+        auto_noise_gate: false,
+        voiced_min_dB: 10,
+        voiced_max_dB: 100,
+        plot_lag: 1,
+        pre_norm_gain: 1000,
+        high_f_emph: 0.0,
+        plot_canvas: document.querySelector('#SpectrumCanvas').getContext('2d'),
+        canvas_width: BOX_WIDTH,
+        canvas_height: BOX_HEIGHT };
+
+        FormantAnalyzer.configure(launch_config);
+    }
+
+    /*This function is called asynchronously after each segment or syllable depending on the output level. si is the index of segment/syllable out of all since reset*/
+    async function call_backed(seg_index, seg_label, seg_time, extracted_features)
+    {
+        console.log(seg_index, seg_label, seg_time, extracted_features);
+        return;
+    }
+    
+    document.querySelector('#mic_button').addEventListener('click', function(e) {
+        e.preventDefault();
+        play_status.Source = 3;
+        if(play_status.playing == false)
+        {
+            document.getElementById('msg').textContent = "Streaming from mic...";
+            
+            disable_buttons(true);
+            document.getElementById("mic_button").value = "...";
+            
+            
+            document.getElementById("mic_button").value = "Stop";
+            document.getElementById("mic_button").disabled = false;
+            play_status.playing = true;
+            
+            Configure_FormantAnalyzer();
+            FormantAnalyzer.LaunchAudioNodes(3, null, call_backed, ['mic'], false, false, null, null).then(function()
+            {
+                stop_playing("End sop play");
+                
+            }).catch((err)=>{
+                console.log(err);
+                stop_playing("Error during play start");
+                document.getElementById('msg').textContent = "Error streaming";
+            });
+            
+        }
+        else
+        {
+            stop_playing("Button pressed");
+            document.getElementById('msg').textContent = "Stopped";
+        }
+        
+    });
+
+    document.querySelector('#play_button').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        play_status.Source = 1;
+        if(play_status.playing)
+        {
+            stop_playing("Button pressed");
+            document.getElementById('msg').textContent = "Stopped";
+        }
+        else
+        {
+            
+            if(!loaded_files)
+            {
+                document.getElementById('msg').textContent = "No files selected to play";
+            }
+            else
+            {
+                disable_buttons(true);
+                play_status.current_file_index = 0;
+                play_status.files_processed = 0;
+                if(PlayNextFile())
+                {
+                    play_status.playing = true;
+                    document.getElementById("play_button").value = "Stop";
+                    document.getElementById("play_button").disabled = false;
+                    document.getElementById('msg').textContent = "Playing";
+                }
+            }
+        }
+    
+    });
+
+
+    
+
+    function PlayNextFile() //play the files loaded in drop zone queue
+    {
+        
+        //This function plays all the loaded files. After each file it calls 'finished_file_play()', which recursively calls this function again until it reaches the end
+        if(play_status.current_file_index >= loaded_files.length)
+            return false;
+
+        let reader = new FileReader();
+        //let this_file = loaded_files[play_status.current_file_index];
+        
+        reader.onload = function(e) 
+        {
+            let this_file_name = loaded_files[play_status.current_file_index].name;
+            let mimeType= loaded_files[play_status.current_file_index].type;
+
+            if(mimeType.includes("audio/") || mimeType.includes("video/"))
+            {
+                //let this_file_bin = e.target.result;
+                document.getElementById('msg').textContent = "Playing file " + String(play_status.current_file_index+1) + "/" + String(loaded_files.length) + ', ' + this_file_name;
+                
+                Configure_FormantAnalyzer();
+                FormantAnalyzer.LaunchAudioNodes(1, e.target.result, call_backed, [this_file_name], false, false, null, null).then(function()
+                {
+                    e = null;   //clear memory
+                    reader = null;
+                    stop_playing("Finished processing all files");
+                    document.getElementById('msg').textContent = "Finished playing " + String(play_status.files_processed) + " files";
+                    return true;
+                }).catch((err)=>{
+                    console.log(err);
+                    e = null;   //clear memory
+                    reader = null;
+                    stop_playing("Error during play start");
+                    document.getElementById('msg').textContent = "Error playing: " + String(this_file_name);
+
+                    return false;
+                });
+            }
+            else
+            {
+                document.getElementById('msg').textContent = "Invalid format: " + String(this_file_name) + ", " + String(mimeType);
+                return false;
+            } 
+        }
+        reader.readAsArrayBuffer(loaded_files[play_status.current_file_index]);  //read binary of audio file
+        return true;
+    }
+
+        
+    
+
+    
+    function stop_playing(reason)
+    {
+        play_status.playing = false;
+        FormantAnalyzer.StopAudioNodes(reason);
+        document.getElementById("play_button").value = "Play";
+        document.getElementById("mic_button").value = "Mic";
+        
+        document.getElementById("play_button").disabled = false;
+        document.getElementById("mic_button").disabled = false;
+    }
+
+
+    function disable_buttons(disable)
+    {
+        document.getElementById("play_button").disabled = disable;
+        document.getElementById("mic_button").disabled = disable;
+    }
+
+    /* Unrelated File loading functions */
+
+    function readmultifiles(files) 
+    {
+        if(play_status.playing) stop_playing("New file loaded");
+        
+        loaded_files = null;
+        play_status.current_file_index = 0;
+        play_status.files_processed = 0;
+        loaded_files = files;
+        document.getElementById('msg').textContent = "Total " + String(loaded_files.length) + " files loaded";
+    }
+
+    var handleDragOver = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+    }
+
+    var handleDrop = function(e) {
+        e.preventDefault()
+        e.stopPropagation()
+        readmultifiles(e.dataTransfer.files);
+    }
+
+    function init_drag_and_drop() //initialize drag and drop zone elements
+    {
+
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            //All the File APIs are supported.
+        } else {
+            console.warn('The Drag and Drop File APIs are not fully supported in this browser.');
+        }
+        const dropzone_div = document.getElementById('dropZone');
+        dropzone_div.addEventListener('drop', handleDrop, false);
+        dropzone_div.addEventListener('dragover', handleDragOver, false);
+    }
+    init_drag_and_drop();
+
+
+    </script>
+    
+    </body>
+</html>

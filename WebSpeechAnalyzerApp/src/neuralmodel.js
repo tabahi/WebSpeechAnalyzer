@@ -2,8 +2,8 @@
 
 const storage_mod = require('./localstore.js');
 const aux = require('./neuralmodel_aux.js');
-const stats = require('./FormantAnalyzer/stats.js'); //uses arrayMax while data balancing
-const models_dir = './dist/nnmodel/';
+const stats = require('./stats.js'); //uses arrayMax while data balancing
+const models_dir = './WebSpeechAnalyzerApp/dist/nnmodel/';
 
 console.log('ml5 version:', ml5.version);
 //https://learn.ml5js.org/#/reference/neural-network

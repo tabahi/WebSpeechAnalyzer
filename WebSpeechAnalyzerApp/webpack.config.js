@@ -1,5 +1,5 @@
 const path = require('path');
-const url = require('url')
+const url = require('url');
 
 module.exports = {
   entry: './src/index.js',

@@ -1,15 +1,17 @@
 {
-  "name": "Speech_Analyzer",
+  "name": "webspeechanalyzer",
   "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "private": true,
   "dependencies": {
-    "webpack-dev-server": "^3.11.0",
+    "formantanalyzer": "^1.1.6",
     "numeric": "^1.2.6",
-    "plotly": "^1.0.6"
+    "plotly": "^1.0.6",
+    "webpack-dev-server": "^3.11.0"
   },
   "devDependencies": {
+    "@webpack-cli/serve": "^1.5.1",
     "clean-webpack-plugin": "^3.0.0",
     "html-webpack-plugin": "^4.3.0",
     "webpack": "^4.44.1",
@@ -20,7 +22,14 @@
     "dev": "webpack-dev-server --inline --hot --env.dev",
     "build": "webpack"
   },
-  "keywords": ["speech", "spectrum", "formants", "analyzer", "features", "mel-spectrogram"],
+  "keywords": [
+    "speech",
+    "spectrum",
+    "formants",
+    "analyzer",
+    "features",
+    "mel-spectrogram"
+  ],
   "author": "Abdul Rehman (Tabahi)",
   "license": "ISC"
 }
