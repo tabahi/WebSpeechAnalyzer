@@ -162,7 +162,7 @@ Source audio object.
 `callback`:
 It is the callback function to be called after each segment ends. It should accept 4 variables; `segment_index`, `segment_time_array`, `segment_labels_array`, `segment_features_array`. Callback is called asynchronously, so there might be a latency between audio play and it's respective callback, that's why it's important to send the labels to async segmentor function.
 
-`label` (Array):
+`file_labels` (Array):
 It is an array of labels for currently playing file. It is returned as it is to the callback function.
 It is used to avoid the label mismatch during slow async processing in case if a new file is playing, but the callback sends the output of the previous one.
 Sometimes callback is called with a delay of 2 seconds, so it helps to keep track which file was playing 2 seconds ago.
@@ -170,16 +170,37 @@ Sometimes callback is called with a delay of 2 seconds, so it helps to keep trac
 `offline_mode` (boolean):
 If true then the locally loaded files will be played silently in an offline buffer.
 
-
 `test_play` (boolean)
 set it true to avoid calling the callback. Plots and AudioNodes will still work as it is, but there will be no call backs. It can be enabled to test plotting or re listening.
 
 `play_offset` and `play_duration` are in seconds to play a certain part of the file, otherwise pass null.
 
+As an example, `callback` function in `WebSpeechAnalyzer` app looks like this:
 
-# WebSpeechAnalyzer analysis features
+```javascript
 
-## Data collection
+async function callback(si, seg_label, seg_time, features)
+{
+    if(settings.output_level == 13) //Syllable 53x statistical features for each segment
+    {
+        if(settings.collect)
+        for(let segment = 0; segment < features.length; segment++ ) 
+        {
+            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (segment/100)), seg_label, seg_time[segment], features[segment]);
+        }
+        
+        if(settings.plot_enable && settings.predict_en)
+        {
+            pred_mod.predict_by_multiple_syllables(settings.predict_type, settings.predict_label, si, features, seg_time);
+        }
+    }
+}
+
+```
+
+## WebSpeechAnalyzer analysis features
+
+### Data collection
 
  In the `WebSpeechAnalyzer` web app that is build upon `formantanalyzer` library, there is also an option for training a neural network with ml5js that has tensorflow backend.
 
@@ -189,7 +210,7 @@ To see more details about features, see `function formant_features(formants)` in
 
 The `Segment Features` and `Syllable Features` output modes return 53 features per time frame (~25ms). These features include 16 features of top 3 formants; mel-frequency (energy weighted), sum of power of formant across it's (vertical) bandwidth, and the bandwidth span of the formant, and 5 features for the overall spectrum measurements such as pauses, noise, amplitude maximum and minimum etc. The colors at the peak amplitudes of formants in the the plot represent formants f0 to f6 as green, magenta, cyan, orange, purple, purple, purple. The code for statistical calculations of features can be found in `formants.js`. A better documentation are yet to come. Please contact the author if you need detailed explanations.
 
-## ML Training
+### ML Training
 
 Currently, only the `Segment Features` and `Syllable Features` are the trainable output levels because they output fixed number of features (53) per segment or syllable. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
 
