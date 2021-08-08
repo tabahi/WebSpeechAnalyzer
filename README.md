@@ -65,57 +65,32 @@ const FormantAnalyzer = require('formantanalyzer');
 */
 
 function Configure_FormantAnalyzer()
-    {
-        const BOX_HEIGHT = 300;
-        const BOX_WIDTH = window.screen.availWidth - 50;
-        document.getElementById('SpectrumCanvas').width = BOX_WIDTH;    //reset the size of canvas element
-        document.getElementById('SpectrumCanvas').height = BOX_HEIGHT;
-        
-        let launch_config = { plot_enable: true,
-        spec_type: 1,
-        output_level: 2,
-        plot_len: 200,
-        f_min: 50,
-        f_max: 4000,
-        N_fft_bins: 256,
-        N_mel_bins: 128,
-        window_width: 25,
-        window_step: 15,
-        pause_length: 200,
-        min_seg_length: 50,
-        auto_noise_gate: true,
-        voiced_min_dB: 10,
-        voiced_max_dB: 100,
-        plot_lag: 1,
-        pre_norm_gain: 1000,
-        high_f_emph: 0.0,
-        plot_canvas: document.querySelector('#SpectrumCanvas').getContext('2d'),
-        canvas_width: BOX_WIDTH,
-        canvas_height: BOX_HEIGHT };
+{
+    const BOX_HEIGHT = 300;
+    const BOX_WIDTH = window.screen.availWidth - 50;
+    document.getElementById('SpectrumCanvas').width = BOX_WIDTH;    //reset the size of canvas element
+    document.getElementById('SpectrumCanvas').height = BOX_HEIGHT;
+    
+    let launch_config = { plot_enable: true,
+    spec_type: 1,       //see below
+    output_level: 2, //see below
+    plot_len: 200, f_min: 50, f_max: 4000,
+    N_fft_bins: 256,
+    N_mel_bins: 128,
+    window_width: 25, window_step: 15,
+    pause_length: 200, min_seg_length: 50,
+    auto_noise_gate: true, voiced_min_dB: 10, voiced_max_dB: 100,
+    plot_lag: 1, pre_norm_gain: 1000, high_f_emph: 0.0,
+    plot_canvas: document.querySelector('#SpectrumCanvas').getContext('2d'),
+    canvas_width: BOX_WIDTH,
+    canvas_height: BOX_HEIGHT };
 
-        FormantAnalyzer.configure(launch_config);
-
-    }
+    FormantAnalyzer.configure(launch_config);
+}
 ```
 
-Available `spec_type` options:
-- 1 = Mel-spectrum
-- 2 = Power Spectrum
-- 3 = Discrete FFT
 
-Available `output_level` options:
-
-- 1 = Bars (no spectrum, only the last filter bank)
-- 2 = Spectrum
-- 3 = Segments
-- 4 = Segment Formants
-- 5 = Segment Features [ML]
-- 10 = Syllable Formants
-- 11 = Distributions 264x [ML]
-- 12 = Syllable Curves 23x [ML]
-- 13 = Syllable 53x [ML]
-
-Then initialize an Audio Element, or local audio file binary element, or `null` if using the mic stream. Then pass it to `LaunchAudioNodes` with suitable parameters. See `simple.html` for examples for local audio file and mic streaming.
+Initialize an Audio Element, or local audio file binary element, or `null` if using the mic stream. Then pass it to `LaunchAudioNodes` with suitable parameters. See `simple.html` for examples for local audio file and mic streaming.
 
 ```javascript
 
@@ -140,7 +115,7 @@ webAudioElement.addEventListener("canplaythrough", event => {
 });
 ```
 
-## `LaunchAudioNodes` 
+## `LaunchAudioNodes()` 
 
 Returns: This function returns a promise as `resolve(true)` after playback is finished or `reject(err)` if there is an error.
 If you want an abrupt stop, then call the `FormantAnalyzer.stop_playing("no reason")` function. Then this function will return `resolve("no reason")`.
@@ -197,6 +172,66 @@ async function callback(si, seg_label, seg_time, features)
 }
 
 ```
+
+## `configure()`
+
+Before playing any audio source using `LaunchAudioNodes()`, the audio nodes must be configured otherwise, default `launch_config` settings will be assumed.
+
+```javascript
+let launch_config = { plot_enable: true,
+    spec_type: 1,
+    output_level: 4,
+    plot_len: 200,
+    f_min: 50,
+    f_max: 4000,
+    N_fft_bins: 256,
+    N_mel_bins: 128,
+    window_width: 25,
+    window_step: 15,
+    pause_length: 200,
+    min_seg_length: 50,
+    auto_noise_gate: true,
+    voiced_min_dB: 10,
+    voiced_max_dB: 100,
+    plot_lag: 1,
+    pre_norm_gain: 1000,
+    high_f_emph: 0.0,
+    plot_canvas: document.querySelector('#SpectrumCanvas').getContext('2d'),
+    canvas_width: 900,
+    canvas_height: 300 };
+
+    FormantAnalyzer.configure(launch_config);
+```
+
+Available `spec_type` options:
+- 1 = Mel-spectrum
+- 2 = Power Spectrum
+- 3 = Discrete FFT
+
+Available `output_level` options:
+
+- 1 = Bars (no spectrum, only the last filter bank)
+- 2 = Spectrum
+- 3 = Segments
+- 4 = Segment Formants / segment
+- 5 = Segment Features 53x / segment [ML]
+- 10 = Syllable Formants / syllable
+- 11 = Distributions 264x / file [ML]
+- 12 = Syllable Curves 23x / syllable [ML]
+- 13 = Syllable Features 53x / syllable [ML]
+
+Level Descriptions:
+- `Bar` and `Spectrum` levels return a 1D array of raw FFT or Mel bins (depending on the `spec_type`) at the interval of each window step (~25 ms). The only difference is that `Spectrum` level keeps a history of bins for plotting the spectrum.
+- `Segments` level returns a 2D array of shape `(step, bins)` of FFT or Mel-bins for each segment. The 1st axis is along the window steps, 2nd axis is along the FFT or Mel bins at each step. Each segment is separated by pauses in speech.
+- `Segment Formants` returns an array of shape `(steps, 9)`. The 9 features include frequency, energy and bandwidth of 3 most prominent formants at that particular window step. Indices `[0,1,2]` are the frequency, energy and bandwidth of the lowest frequency formant.
+- `Syllable Formants` returns the same array of shape `(steps, 9)` as `Segment Formants` but in this case the division and the length (total number of steps) is much shorter because syllables are separated by even minor pauses and other sudden shifts in formant frequency and energy.
+- `Segment Features 53x` returns a 1D array of shape `(53)` which has 53 statistical formant based features.
+- `Syllable Features 53x` returns a 2D array of shape `(syllables, 53)` which has 53 statistical formant based features for each syllable in the segment.
+- `Syllable Curves 23x` returns a 2D array of shape `(syllables, 23)`. The 23 features are the polynomial constants extracted by curve fitting of sum of energies of all formants and curves for f0, f1, f2 frequencies. The fitted curve of energy is visible on the plot but the scale is not Hz.
+- `Distributions 264x` returns a 1D array of shape `(264)` for normalized cumulative features for complete file since the play started. The sum of features resets only when a new file starts, but the latest normalized feature set is updated at each segment pause using the features of each segment.
+
+Levels `5,11,12,13` have fixed output vector sizes (either per segment, per file, or per syllable) that's why they can be used as input for an ML classifier. At level `11,12,13`, the plot is the same as level `10`, but the different types of extracted features are returned to the callback function.
+
 
 ## WebSpeechAnalyzer analysis features
 
