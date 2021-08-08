@@ -96,16 +96,15 @@ Initialize an Audio Element, or local audio file binary element, or `null` if us
 
 var webAudioElement = new Audio("./audio_file.mp3");
 /*Parameters:*/
-const source = 2;   //1: Local file binary, 2: play from a web Audio, 3: mic
+const context_source = 2;   //1: Local file binary, 2: play from a web Audio, 3: mic
 const test_mode = true; //plots only, it does not return callback
 const offline = false;  //play on speakers, set true to play silently
-const callback = null;  //callback function to which extracted features are passed
 const file_labels =[];     //array of labels that will be passed to callback after feature extraction
 
 /* Wait for audio file to load */
 webAudioElement.addEventListener("canplaythrough", event => {
     /* Launch Audio Nodes */
-    FormantAnalyzer.LaunchAudioNodes(source, webAudioElement,
+    FormantAnalyzer.LaunchAudioNodes(context_source, webAudioElement,
                     callback, file_labels, offline, test_mode).then(function()
         {
             console.log("Done");
@@ -113,26 +112,30 @@ webAudioElement.addEventListener("canplaythrough", event => {
             console.log(err);
         });
 });
+
+callback(seg_index, file_labels, seg_time, features)
+{
+//callback function to which extracted features are passed
+}
 ```
 
 ## `LaunchAudioNodes()` 
 
 Returns: This function returns a promise as `resolve(true)` after playback is finished or `reject(err)` if there is an error.
-If you want an abrupt stop, then call the `FormantAnalyzer.stop_playing("no reason")` function. Then this function will return `resolve("no reason")`.
+If you want an abrupt stop, then call the `FormantAnalyzer.stop_playing("no reason")` function. Then this function will return `resolve("no reason")`. Different audio contexts are buffered/streamed differently, therefore each has a separate function in `AudioNodes.js`.
 
 ### Parameters:
 
 `context_source` (int):
-- 1 --- Play from a loaded file - online (on speakers)
-- 1 --- Play from a loaded file - offline (silently in the background)
-- 2 --- Play from an Audio element (pass audio object as source_obj)
+- 1 --- Play from a locally loaded file (pass an audio binary as source_obj).
+- 2 --- Play from an Audio element (pass an `Audio` object as source_obj)
 - 3 --- Stream from mic
 
 `source_obj` (object):
 Source audio object.
-- If `context_source==1` (playing from a local file) then pass a binary of audio.
-- If `context_source==2` (playing from a web address) then pass Audio object.
-- If `context_source==3` (playing from mic Pass `null`). Different audio contexts are buffered/streamed differently, therefore each has a separate function in AudioNodes.js
+- If `context_source==1` (playing from a local file) then pass a binary of file. Get binary from `FileReader` as: `FileReader.onload (e)=>(binary = e.target.result)`. See [`simple.html`](https://github.com/tabahi/WebSpeechAnalyzer/blob/51dac532bb1909439a90ac7552c199adce34f86f/simple.html#L218).
+- If `context_source==2` (playing from a web address) then pass an `Audio` object.
+- If `context_source==3` (playing from mic Pass `null`). See [`simple.html`](https://github.com/tabahi/WebSpeechAnalyzer/blob/51dac532bb1909439a90ac7552c199adce34f86f/simple.html#L142).
 
 `callback`:
 It is the callback function to be called after each segment ends. It should accept 4 variables; `segment_index`, `segment_time_array`, `segment_labels_array`, `segment_features_array`. Callback is called asynchronously, so there might be a latency between audio play and it's respective callback, that's why it's important to send the labels to async segmentor function.
@@ -154,24 +157,30 @@ As an example, `callback` function in `WebSpeechAnalyzer` app looks like this:
 
 ```javascript
 
-async function callback(si, seg_label, seg_time, features)
+async function callback(seg_index, seg_label, seg_time, features)
 {
-    if(settings.output_level == 13) //Syllable 53x statistical features for each segment
+    if(launch_config.output_level == 13) //Syllable 53x statistical features for each segment
     {
         if(settings.collect)
         for(let segment = 0; segment < features.length; segment++ ) 
         {
-            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (segment/100)), seg_label, seg_time[segment], features[segment]);
+            storage_mod.StoreFeatures(launch_config.output_level, settings.DB_ID, (seg_index + (segment/100)), seg_label, seg_time[segment], features[segment]);
         }
         
         if(settings.plot_enable && settings.predict_en)
         {
-            pred_mod.predict_by_multiple_syllables(settings.predict_type, settings.predict_label, si, features, seg_time);
+            pred_mod.predict_by_multiple_syllables(settings.predict_type, settings.predict_label, seg_index, features, seg_time);
         }
     }
 }
 
 ```
+
+Different types of features are returned to the `callback(seg_index, seg_label, seg_time, features)` at different output levels. Variables for `callback`:
+- `seg_index` the index of segment since the play start. Segments are separated by significant pauses, the first segment of each file starts has `seg_index = 0`.
+- `seg_label` is the same as `file_labels` passed to `LaunchAudioNodes()`.
+- `seg_time` is an array of two elements `[start_time, total_duration]` at segment level. At syllable level, it is a 2D array of shape (syllables, 2), giving `[start_time, total_duration]` for each syllable separately.
+- `features` is the array of extracted features that is of different shape at different `output_level`. Detailed descriptions for each level are given below.
 
 ## `configure()`
 
@@ -220,8 +229,11 @@ Available `output_level` options:
 - 12 = Syllable Curves 23x / syllable [ML]
 - 13 = Syllable Features 53x / syllable [ML]
 
-Level Descriptions:
-- `Bar` and `Spectrum` levels return a 1D array of raw FFT or Mel bins (depending on the `spec_type`) at the interval of each window step (~25 ms). The only difference is that `Spectrum` level keeps a history of bins for plotting the spectrum. _(currently disabled in the callback, only use it view plots)_
+### Output Level Descriptions:
+
+Different `features` are returned to the `callback(seg_index, seg_label, seg_time, features)` at different output levels. The shape of `seg_time` also differs from `(2)` to `(syllable, 2)` for segment vs syllable. The shape of `features` array at each level is as follows:
+
+- `Bar` and `Spectrum` levels return a 1D array of raw FFT or Mel bins (depending on the `spec_type`) at the interval of each window step (~25 ms). The only difference is that `Spectrum` level keeps a history of bins for plotting the spectrum. _(Currently, callback is disabled at this level, only use it to view plots)_
 - `Segments` level returns a 2D array of shape `(step, bins)` of FFT or Mel-bins for each segment. The 1st axis is along the window steps, 2nd axis is along the FFT or Mel bins at each step. Each segment is separated by pauses in speech.
 - `Segment Formants` returns an array of shape `(steps, 9)`. The 9 features include frequency, energy and bandwidth of 3 most prominent formants at that particular window step. Indices `[0,1,2]` are the frequency, energy and bandwidth of the lowest frequency formant.
 - `Syllable Formants` returns the same array of shape `(steps, 9)` as `Segment Formants` but in this case the division and the length (total number of steps) is much shorter because syllables are separated by even minor pauses and other sudden shifts in formant frequency and energy.
@@ -230,7 +242,7 @@ Level Descriptions:
 - `Syllable Curves 23x` returns a 2D array of shape `(syllables, 23)`. The 23 features are the polynomial constants extracted by curve fitting of sum of energies of all formants and curves for f0, f1, f2 frequencies. The fitted curve of energy is visible on the plot but the scale is not Hz.
 - `Distributions 264x` returns a 1D array of shape `(264)` for normalized cumulative features for complete file since the play started. The sum of features resets only when a new file starts, but the latest normalized feature set is updated at each segment pause using the features of each segment.
 
-Levels `5,11,12,13` have fixed output vector sizes (either per segment, per file, or per syllable) that's why they can be used as input for an ML classifier. At level `11,12,13`, the plot is the same as level `10`, but the different types of extracted features are returned to the callback function.
+Levels `5,11,12,13` have fixed output vector sizes (either per segment, per file, or per syllable) that's why they can be used as input for an ML classifier. At level `11,13`, the plot is the same as level `10`, but the different types of extracted features are returned to the callback function.
 
 
 ## WebSpeechAnalyzer analysis features
