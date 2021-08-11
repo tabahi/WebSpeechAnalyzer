@@ -1,0 +1,48 @@
+{
+    "task": "classification",
+    "inputs": 53,
+    "outputs": 1,
+    "learningRate": 0.2,
+    "debug": true,
+    "layers":
+    [
+        {
+            "type": "dense",
+            "units": 512,
+            "activation": "relu"
+        },{
+            "type": "dense",
+            "units": 512,
+            "activation": "relu"
+        },
+        {
+            "type": "dense",
+            "activation": "softmax"
+        }
+    ]
+}
+Layer Name	Output Shape	# Of Params	Trainable
+Model Summary
+Layer Name	Output Shape	# Of Params	Trainable
+dense_Dense1	[batch,512]	27,648	true
+dense_Dense2	[batch,512]	262,656	true
+dense_Dense3	[batch,8]	4,104	true
+
+
+Model download started for emotion
+
+
+Viewing 100 / 376634, Total: 2207.26 mins, Avg: 0.35 s, Max: 6.95 s, Last: 4#MSP-PODCAST_2363_0128.wav#2.06
+
+    Label: emotion, Type: Class
+    Classes (8): N,S,H,A,F,D,T,U
+    Accuracy: NaN%
+    Correct: 0, Wrong 0, NaN: 376634
+    N : count: 173793, minutes: 974.17 0 0 NaN%
+    S : count: 16946, minutes: 97.24 0 0 NaN%
+    H : count: 91003, minutes: 552.72 0 0 NaN%
+    A : count: 19792, minutes: 121.93 0 0 NaN%
+    F : count: 9051, minutes: 56.79 0 0 NaN%
+    D : count: 15267, minutes: 93.61 0 0 NaN%
+    T : count: 24443, minutes: 149.86 0 0 NaN%
+    U : count: 26339, minutes: 160.94 0 0 NaN% 
