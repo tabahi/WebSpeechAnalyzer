@@ -1,0 +1,16 @@
+{
+  "files": {
+    "included": [
+      "FormantAnalyzerLibrary/*.js",
+      "FormantAnalyzerLibrary/src/*.js",
+      "WebSpeechAnalyzerApp/dist/*.js",
+      "WebSpeechAnalyzerApp/src/*.js"
+    ],
+    "excluded": [
+      "samples",
+      "assets",
+      "!regexp:/assets/",
+      "!regexp:/nnmodel/"
+    ]
+  }
+}
