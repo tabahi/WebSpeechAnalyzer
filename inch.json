@@ -7,10 +7,9 @@
       "WebSpeechAnalyzerApp/src/*.js"
     ],
     "excluded": [
-      "samples",
-      "assets",
-      "!regexp:/assets/",
-      "!regexp:/nnmodel/"
+      "samples/*",
+      "assets/*",
+      "WebSpeechAnalyzerApp/dist/nnmodel/*"
     ]
   }
 }
