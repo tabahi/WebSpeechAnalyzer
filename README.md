@@ -18,7 +18,7 @@ This project is built using the formantanalyzer.js as the feature extractor.
 ![NPM](https://img.shields.io/npm/l/formantanalyzer?style=plastic)
 [![Inline docs](http://inch-ci.org/github/tabahi/formantanalyzer.js.svg?branch=main)](http://inch-ci.org/github/tabahi/formantanalyzer.js)
 
-[https://github.com/tabahi/formantanalyzer.js](https://tabahi.github.io/WebSpeechAnalyzer/simple.html)
+Visit [tabahi/formantanalyzer.js](https://github.com/tabahi/formantanalyzer.js) for more details.
 
 ### Data collection
 
