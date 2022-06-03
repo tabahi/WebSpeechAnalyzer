@@ -35,3 +35,31 @@ The `Segment Features` and `Syllable Features` output modes return 53 features p
 Currently, only the fixed sized output level such as `Segment Features` and `Syllable Features` are the trainable output levels because they output fixed number of features (53) per segment or syllable. To try different layers see references from [ml5js](https://learn.ml5js.org/#/reference/neural-network?id=defining-custom-layers).
 
 In case, someone wants to try CNN layers with padding / masking etc to work with all other modes, then edit the source in `function train_nn(db_id, label_type, label_name)` in file `neuralmodel.js`.
+
+
+
+## Citations
+
+```tex
+@misc{https://doi.org/10.48550/arxiv.2204.11382,
+  doi = {10.48550/ARXIV.2204.11382},
+  
+  url = {https://arxiv.org/abs/2204.11382},
+  
+  author = {Rehman, Abdul and Liu, Zhen-Tao and Wu, Min and Cao, Wei-Hua and Jiang, Cheng-Shan},
+  
+  keywords = {Sound (cs.SD), Human-Computer Interaction (cs.HC), Machine Learning (cs.LG), Audio and Speech Processing (eess.AS), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Electrical engineering, electronic engineering, information engineering, FOS: Electrical engineering, electronic engineering, information engineering, I.5.2; I.5.5},
+  
+  title = {Real-time Speech Emotion Recognition Based on Syllable-Level Feature Extraction},
+  
+  publisher = {arXiv},
+  
+  year = {2022},
+  
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+
+```
+
+Paper (pre-print): [Real-time Speech Emotion Recognition Based on Syllable-Level Feature Extraction](https://arxiv.org/abs/2204.11382)
+
