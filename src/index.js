@@ -35,7 +35,7 @@ document.getElementById('msg').textContent = "V:Aug07a";
 async function call_backed(si, seg_label, seg_time, incoming)
 {
     
-    if(settings.output_level == 11) //level of whole clip cum features
+    if(settings.output_level == 11) //level of whole clip cumulative features. Distributions 264x [ML]
     {
         //console.log(incoming);
         if(settings.collect)
@@ -68,25 +68,33 @@ async function call_backed(si, seg_label, seg_time, incoming)
             storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
         }
     }
-    else if(settings.output_level == 10) //plain syllable formants
+    else if(settings.output_level == 10) //plain syllable formants. variable size of output
     {
         if(seg_time.length != incoming.length) console.error("Length mismatch");
-
-        for(let ph = 0; ph < incoming.length; ph++ ) 
+        
+        if(settings.collect)
+        for(let syllable = 0; syllable < incoming.length; syllable++ )
         {
-            if(settings.collect)
-            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (ph/100)), seg_label, seg_time[ph], incoming[ph]);
+            let sum_array = incoming[syllable][0];
+            for(let frame = 1; frame < incoming[syllable].length; frame++ )
+                for(let feature = 0; feature < incoming[syllable][frame].length; feature++)
+                    sum_array[feature] += incoming[syllable][frame][feature];
+            
+            for(let feature = 0; feature < sum_array.length; feature++)
+                if(sum_array[feature]!=0) sum_array[feature] /= incoming[syllable].length;
+            //console.log(sum_array);
+            storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, (si + (syllable/100)), seg_label, seg_time[syllable], Array.from(sum_array));
         }
     }
-    else if(settings.output_level == 5)
+    else if(settings.output_level == 5) //Segment Features [ML] 
     {
         if(settings.collect)
         storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, si, seg_label, seg_time, incoming);
     }
-    else if(settings.output_level == 4)
+    else if(settings.output_level == 4) //Segment Formants. variable size of output
     {
-        if(settings.collect)
-        storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, si, seg_label, seg_time, incoming);
+        //if(settings.collect)
+        //storage_mod.StoreFeatures(settings.output_level, settings.DB_ID, si, seg_label, seg_time, incoming);
     }
     return;
 }

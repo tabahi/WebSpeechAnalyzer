@@ -4,7 +4,7 @@ const sep_utt = true;   //separate utterances by silence
 
 
 //const syl_seg_features_N = 53; //63
-const process_exp_features_len = [0,1,2,3,4,53,6,7,8,9,10,264,23,53,14,15];
+const process_exp_features_len = [0,1,2,3,4,53,0,0,0,0,9,264,23,53,14,15];
 const ctx_features_en = false;
 
 var label_heads_cat = [];
@@ -43,7 +43,7 @@ export function StoreFeatures(process_level, db_id, si, seg_key, seg_time, new_i
     //console.log(this_seg_key);
 
     
-    if(new_in.length != process_exp_features_len[process_level]) { alert("Invalid feature length "+(new_in.length)+ "... :"+process_exp_features_len[process_level]);  }
+    if(new_in.length != process_exp_features_len[process_level]) { console.error("Invalid feature length "+(new_in.length)+ "... :"+process_exp_features_len[process_level]);  return;}
     if(process_level<=4)
     {
         let ci_arr = [];

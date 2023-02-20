@@ -33,7 +33,6 @@ module.exports = {
   
   mode : 'production',
   node: {
-    fs: "empty"
   }
 
 };
@@ -44,12 +43,10 @@ development
 
   mode : 'production',
   node: {
-    fs: "empty"
   }
 
 mode : 'development',
   devtool: 'inline-source-map',
   node: {
-    fs: "empty"
   }
 */
