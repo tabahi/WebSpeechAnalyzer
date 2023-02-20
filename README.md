@@ -16,7 +16,6 @@ This project is built using the formantanalyzer.js as the feature extractor.
 ![npm](https://img.shields.io/npm/v/formantanalyzer?style=plastic)
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/tabahi/formantanalyzer.js/main)
 ![NPM](https://img.shields.io/npm/l/formantanalyzer?style=plastic)
-[![Inline docs](http://inch-ci.org/github/tabahi/formantanalyzer.js.svg?branch=main)](http://inch-ci.org/github/tabahi/formantanalyzer.js)
 
 Visit [tabahi/formantanalyzer.js](https://github.com/tabahi/formantanalyzer.js) for more details.
 
