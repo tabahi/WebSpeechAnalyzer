@@ -4,7 +4,8 @@ A JS [Web API](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) ba
 
 ## Demo
 
-- [Web Speech Analyzer](https://tabahi.github.io/WebSpeechAnalyzer/?dev=1)
+- [Soprano - Mel Spectrum mode](https://tabahi.github.io/WebSpeechAnalyzer/?mode=2&p=samples/Haendel_Lascia_chi_o_pianga.mp4&dev=1)
+- [Speech Analyzer - dev mode](https://tabahi.github.io/WebSpeechAnalyzer/?dev=1)
 - [Speech Emotion Analyzer](https://tabahi.github.io/WebSpeechAnalyzer/?type=cats&label=emotion)
 
 - [formantanalyzer.js minimal](https://tabahi.github.io/formantanalyzer.js/)
@@ -40,25 +41,17 @@ In case, someone wants to try CNN layers with padding / masking etc to work with
 ## Citations
 
 ```tex
-@misc{https://doi.org/10.48550/arxiv.2204.11382,
-  doi = {10.48550/ARXIV.2204.11382},
-  
-  url = {https://arxiv.org/abs/2204.11382},
-  
-  author = {Rehman, Abdul and Liu, Zhen-Tao and Wu, Min and Cao, Wei-Hua and Jiang, Cheng-Shan},
-  
-  keywords = {Sound (cs.SD), Human-Computer Interaction (cs.HC), Machine Learning (cs.LG), Audio and Speech Processing (eess.AS), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Electrical engineering, electronic engineering, information engineering, FOS: Electrical engineering, electronic engineering, information engineering, I.5.2; I.5.5},
-  
-  title = {Real-time Speech Emotion Recognition Based on Syllable-Level Feature Extraction},
-  
-  publisher = {arXiv},
-  
-  year = {2022},
-  
-  copyright = {arXiv.org perpetual, non-exclusive license}
+@article{rehman2023speech,
+  title={Speech emotion recognition based on syllable-level feature extraction},
+  author={Rehman, Abdul and Liu, Zhen-Tao and Wu, Min and Cao, Wei-Hua and Jiang, Cheng-Shan},
+  journal={Applied Acoustics},
+  volume={211},
+  pages={109444},
+  year={2023},
+  publisher={Elsevier}
 }
 
 ```
 
-Paper (pre-print): [Real-time Speech Emotion Recognition Based on Syllable-Level Feature Extraction](https://arxiv.org/abs/2204.11382)
+[Paper](https://www.sciencedirect.com/science/article/pii/S0003682X23002426?casa_token=xgbESpgJjPgAAAAA:w7qSxwoklcB5PpyFY-6BVsd-dpIzAi69rlhBygt-hT0llCZ5J_qkEfRn8XxT2iqisHlQDOff)
 
